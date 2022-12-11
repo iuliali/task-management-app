@@ -10,7 +10,7 @@ namespace TaskManagementApp.Data
             : base(options)
         {
         }
-        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<Team> Teams { get; set; }
         public DbSet<TeamMember> TeamMembers { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
