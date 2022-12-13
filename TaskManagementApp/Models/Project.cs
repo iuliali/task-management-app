@@ -13,17 +13,18 @@ namespace TaskManagementApp.Models
         [Required(ErrorMessage ="Project Name is mandatory!")]
         [StringLength(100, ErrorMessage = "Project Name cannot have more than 35 characters.")]
         [MinLength(5, ErrorMessage = "Project Name must have at least 5 characters.")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [Required(ErrorMessage = "Project Description is mandatory!")]
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
-        public DateTime CreatedDate { get; set; }
-        public int? UserId { get; set; } // organiser's id 
-        //public virtual ApplicationUser? User { get; set; } 
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? FinishedDate { get; set; }
+        public string? UserId { get; set; } // organiser's id 
+        public virtual ApplicationUser? User { get; set; } 
 
-        public virtual ICollection<Task> Tasks { get; set; }
+        public virtual ICollection<Task>? Tasks { get; set; }
 
     }
 }

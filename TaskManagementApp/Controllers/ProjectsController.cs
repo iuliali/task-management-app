@@ -6,12 +6,12 @@ using TaskManagementApp.Models;
 
 namespace TaskManagementApp.Controllers
 {
-    public class TeamsController : Controller
+    public class ProjectsController : Controller
     {
         private readonly ApplicationDbContext db;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public TeamsController(
+        public ProjectsController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager
@@ -21,30 +21,27 @@ namespace TaskManagementApp.Controllers
             _userManager = userManager;
             _roleManager = roleManager;
         }
+
         public IActionResult Index()
         {
-            var teams = db.Teams;
-            ViewBag.Teams = teams;
+            var projects = db.Projects.Include("User");
+            ViewBag.Projects = projects;
+
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
             }
+
+
             return View();
         }
+
         public IActionResult Show(int id)
         {
-            /*
-            var members = from user in db.Users
-                        join tm in db.TeamMembers on user.Id equals  tm.ApplicationUserId
-                        where tm.TeamId == id
-                        select user.FirstName; // atentie la metoda asta nu se trimit obiecte in view, ci direct strings
-            */
-
-
-            var members = db.TeamMembers.Include("ApplicationUser").Where(m=>m.TeamId == id);
-            var teamneame = from team in db.Teams where team.Id == id select team.Name;
-            ViewBag.TeamName = teamneame.First();
-            ViewBag.Members = members;
+            var project = db.Projects.Where(p => p.Id == id).First();
+            var tasks = db.Tasks.Include("User").Where(t => t.ProjectId == id);
+            ViewBag.Tasks = tasks;
+            ViewBag.Project = project;
 
             if (TempData.ContainsKey("message"))
             {
@@ -53,6 +50,7 @@ namespace TaskManagementApp.Controllers
             return View();
         }
 
+        //TODO -> 2 * NEW METHOD 
 
     }
 }
