@@ -1,4 +1,6 @@
-﻿namespace TaskManagementApp.Models
+﻿using Microsoft.Build.Framework;
+
+namespace TaskManagementApp.Models
 {
     public class TeamMember
     {

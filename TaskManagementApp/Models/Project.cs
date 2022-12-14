@@ -22,6 +22,7 @@ namespace TaskManagementApp.Models
         public DateTime? CreatedDate { get; set; }
         public DateTime? FinishedDate { get; set; }
         public string? UserId { get; set; } // organiser's id 
+        public virtual Team? Team { get; set; }
         public virtual ApplicationUser? User { get; set; } 
 
         public virtual ICollection<Task>? Tasks { get; set; }

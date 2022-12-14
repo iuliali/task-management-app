@@ -1,0 +1,51 @@
+﻿@model TaskManagementApp.Models.Project
+
+
+<br />
+@if(ViewBag.Message != null){
+    <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
+}
+<br />
+
+<h2 class="text-center mt-5">Add a new project</h2>
+<br />
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-6 offset-3">
+
+            @using (Html.BeginForm(actionName: "New", controllerName: "Projects",
+            method: FormMethod.Post))
+            {
+                @Html.HiddenFor("UserId", ViewBag.User.Id)
+                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+
+                @Html.Label("Name", "Project Name")
+                <br />
+                @Html.TextBox("Name", null, new { @class = "form-control" })
+
+                <!--@Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })-->
+                <br />
+
+                <br />
+
+                @Html.Label("Description", "Project Description")
+                <br />
+                @Html.TextArea("Description", null, new { @class = "form-control" })
+
+                <!--@Html.ValidationMessage("Description", null, new { @class = "text-danger" })-->
+                <br />
+
+                <br />
+
+               
+
+                <button class="btn btn-success" type="submit">Add Project</button>
+
+            }
+
+        </div>
+    </div>
+</div>
+
+

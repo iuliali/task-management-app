@@ -1,4 +1,81 @@
-﻿<h2>@ViewBag.Project.Name</h2>
+﻿
+@if (ViewBag.Message != null)
+{
+    <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
+}
+
+<h2>@ViewBag.Project.Name</h2>
+
+<br />
+
+<div class="card-body">
+    <h5>Project description: @ViewBag.Project.Description</h5>
+    @if (ViewBag.Team is null) { 
+        <div> There is no team for this project ! Create one : </div>
+        <div class="container">
+                <div class="card">
+                    <form method="post" action="/Projects/Show/@ViewBag.Project.Id">
+
+                        <div class="card-body">
+
+                            <input type="hidden" name="ProjectId" value="@ViewBag.Project.Id" />
+
+                            @Html.Label("Name", "Team Name")
+                            <br />
+                            @Html.TextBox("Name", null, new { @class = "form-control" })
+
+                            @Html.ValidationMessage("Name", null, new { @class = "text-danger"})
+
+                            <br /><br />
+ 
+                        </div>
+
+                            <button class="btn btn-success " type="submit">Create team and add to the project</button>
+
+                    </form>
+                </div>
+            </div> 
+           
+
+    } else {
+        <h5>Project team:<span class="badge badge-secondary"> <a class="nav-link text-dark" href="/Teams/Show/@ViewBag.Team.Id"> @ViewBag.Team.Name</a></span></h5>
+
+           // afisare membrii
+            <div class="d-flex">
+
+           @foreach(var member in ViewBag.TeamMembers) {
+
+                <div class="d-inline-block"> 
+                    <a href="#" class="btn nav-link"> @member.ApplicationUser.FirstName @member.ApplicationUser.LastName </a>
+                    </div>
+                
+                // trebuie adaugat link catre profil user
+            }
+              <!--aici formular adaugare membrii-->
+
+            <form method="POST" action="/Projects/AddMember/">
+                <input type="hidden" name="TeamId" value="@ViewBag.Team.Id" />
+                <div class="d-flex flex-row justify-content-center p-3 border-1 border-top">
+                    <div>
+                        <select name="ApplicationUserId" class="form-control">
+                            <option selected>Add members to the team</option>
+                            @foreach (var user in ViewBag.Users)
+                            {
+                                <option value="@user.Id">@user.FirstName @user.LastName</option>
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <input type="submit" class="btn btn-success alert-success" value="+" />
+                    </div>
+                </div>
+            </form>
+            </div>
+    }
+
+</div>
+
+
 
 @foreach (var task in ViewBag.Tasks)
 {
@@ -8,9 +85,6 @@
             <h3 class="card-title alert-success py-3 px-3 rounded-2">@task.Name</h3>
             <div>Assigned to : @task.User.FirstName</div>
             <div>Status : @task.status</div>
-
-
-
 
         </div>
     </div>

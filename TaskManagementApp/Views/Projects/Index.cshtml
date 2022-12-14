@@ -1,4 +1,4 @@
-﻿<h2>Afisare proiecte</h2>
+﻿<h2>Projects</h2>
 <br />
 @if (ViewBag.Message != null)
 {
@@ -9,11 +9,10 @@
     <div class="card">
         <div class="card-body">
 
-            <h3 class="card-title alert-success py-3 px-3 rounded-2"><a href="/Projects/Show/@project.Id">@project.Name</a></h3>
+            <h3 class="card-title alert-success py-3 px-3 rounded-2"><a class=" nav-link text-success" href="/Projects/Show/@project.Id">@project.Name</a></h3>
 
             <div class="card-text">@project.Description</div>
             <div class="card-text">Creat de @project.User.FirstName la data de @project.CreatedDate.ToShortDateString()</div>
-
 
         </div>
     </div>
