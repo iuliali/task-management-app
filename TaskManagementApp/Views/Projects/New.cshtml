@@ -16,7 +16,7 @@
             @using (Html.BeginForm(actionName: "New", controllerName: "Projects",
             method: FormMethod.Post))
             {
-                @Html.HiddenFor("UserId", ViewBag.User.Id)
+                //@Html.HiddenFor("UserId", ViewBag.User.Id)
                 @Html.ValidationSummary(false, "", new { @class = "text-danger" })
 
 
@@ -28,7 +28,6 @@
                 <br />
 
                 <br />
-
                 @Html.Label("Description", "Project Description")
                 <br />
                 @Html.TextArea("Description", null, new { @class = "form-control" })
@@ -37,13 +36,8 @@
                 <br />
 
                 <br />
-
-               
-
                 <button class="btn btn-success" type="submit">Add Project</button>
-
             }
-
         </div>
     </div>
 </div>

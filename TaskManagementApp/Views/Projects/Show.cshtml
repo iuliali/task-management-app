@@ -71,10 +71,42 @@
                 </div>
             </form>
             </div>
+
+            <div class="card">
+                <form method="post" action="/Projects/AddTask/">
+
+                    <div class="card-body">
+                        <input type="hidden" name="ProjectId" value="@ViewBag.Project.Id" />
+                        @Html.Label("Name", "Task Name")
+                        <br />
+                        @Html.TextBox("Name", null, new { @class = "form-control" })
+                        @Html.Label("Description", "Description")
+                        <br />
+
+                        @Html.TextBox("Description", null, new { @class = "form-control" })
+
+                        <br />
+                        <select name="UserId" class="form-control">
+                            <option selected>Add member for task</option>
+                            @foreach (var member in ViewBag.Members)
+                            {
+                                <option value="@member.ApplicationUserId">@member.ApplicationUser.FirstName @member.ApplicationUser.LastName</option>
+                            }
+                        </select>
+                        <br />
+
+                    </div>
+
+                    <button class="btn btn-success " type="submit">Create task</button>
+
+                </form>
+             
+            </div>
+    
+
     }
 
 </div>
-
 
 
 @foreach (var task in ViewBag.Tasks)
@@ -85,6 +117,8 @@
             <h3 class="card-title alert-success py-3 px-3 rounded-2">@task.Name</h3>
             <div>Assigned to : @task.User.FirstName</div>
             <div>Status : @task.status</div>
+            <div>Status : @task.CreatedDate</div>
+            <div>Status : @task.Description</div>
 
         </div>
     </div>

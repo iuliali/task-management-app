@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using TaskManagementApp.Data;
 using TaskManagementApp.Models;
+using Task = TaskManagementApp.Models.Task;
 
 namespace TaskManagementApp.Controllers
 {
@@ -75,6 +76,15 @@ namespace TaskManagementApp.Controllers
                 ViewBag.AddMembersForm = false;
 
             }
+            var members = from teamm in db.Teams
+                          join projectt in db.Projects on team.ProjectId equals projectt.Id
+                          join member in db.TeamMembers on team.Id equals member.TeamId
+                          where projectt.Id == id
+                          select member;
+            var members2 = from member in db.TeamMembers
+                           where member.TeamId == team.Id && team.ProjectId == id
+                           select member;
+            ViewBag.Members = members2;
 
             var tasks = db.Tasks.Include("User").Where(t => t.ProjectId == id);
             ViewBag.Tasks = tasks;
@@ -115,29 +125,43 @@ namespace TaskManagementApp.Controllers
         [HttpPost]
         public IActionResult Show([FromForm] Team team)
         {
-
-
             if (ModelState.IsValid)
             {
                 db.Teams.Add(team);
                 db.SaveChanges();
                 return Redirect("/Projects/Show/" + team.ProjectId);
             }
-
             else
             {
                 Project project = db.Projects.Include("Team")
                                          .Where(p => p.Id == team.ProjectId)
                                          .First();
 
-
                 var users = db.Users.Where(u => u.Id == _userManager.GetUserId(User)).ToList();
                 ViewBag.Users = users;
 
 
                 return Redirect("/Projects/Show/" + team.ProjectId);
+            }
+        }
+        [HttpPost]
+        public IActionResult AddTask([FromForm] Task task)
+        {
+            task.CreatedDate = DateTime.Now;
+            task.status = "Not started";
+            if (ModelState.IsValid)
+            {
+                db.Tasks.Add(task);
+                db.SaveChanges();
+                TempData["message"] = "Task has been added";
+            }
+            else
+            {
+                TempData["message"] = ":((";
+                TempData["messageType"] = "alert-danger";
 
             }
+            return Redirect("/Projects/Show/" + task.ProjectId);
         }
 
         
@@ -174,7 +198,6 @@ namespace TaskManagementApp.Controllers
                 return View(project);
             }
         }
-
 
     }
 }
