@@ -16,7 +16,7 @@
             @using (Html.BeginForm(actionName: "New", controllerName: "Projects",
             method: FormMethod.Post))
             {
-                //@Html.HiddenFor("UserId", ViewBag.User.Id)
+                @Html.HiddenFor("UserId", ViewBag.User.Id)
                 @Html.ValidationSummary(false, "", new { @class = "text-danger" })
 
 

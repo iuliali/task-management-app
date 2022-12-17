@@ -76,15 +76,15 @@ namespace TaskManagementApp.Controllers
                 ViewBag.AddMembersForm = false;
 
             }
-            var members = from teamm in db.Teams
+            /*var members = from teamm in db.Teams
                           join projectt in db.Projects on team.ProjectId equals projectt.Id
                           join member in db.TeamMembers on team.Id equals member.TeamId
                           where projectt.Id == id
-                          select member;
-            var members2 = from member in db.TeamMembers
+                          select member;*/
+            var members = from member in db.TeamMembers
                            where member.TeamId == team.Id && team.ProjectId == id
                            select member;
-            ViewBag.Members = members2;
+            ViewBag.Members = members;
 
             var tasks = db.Tasks.Include("User").Where(t => t.ProjectId == id);
             ViewBag.Tasks = tasks;
