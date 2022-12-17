@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Linq;
@@ -9,6 +11,7 @@ using TaskManagementApp.Models;
 
 namespace TaskManagementApp.Controllers
 {
+    [Authorize]
     public class ProjectsController : Controller
     {
         private readonly ApplicationDbContext db;
@@ -41,48 +44,32 @@ namespace TaskManagementApp.Controllers
 
         public IActionResult Show(int id)
         {
-            //var project = db.Projects.Where(p => p.Id == id).First();
+            var users = db.Users.Where(u => u.Id == _userManager.GetUserId(User)).ToList();
+            ViewBag.Users = users;
 
-            var users = db.Users.Include("TeamMembers").Where(u => u.Id == _userManager.GetUserId(User));
-            ViewBag.Users = users.ToList();
-            ViewBag.AddMembersForm = false;
+            var project = db.Projects.Include("Team")
+              .Where(p => p.Id == id)
+              .First();
+            ViewBag.Project = project;
+
+
             var team = db.Teams.Where(t => t.ProjectId == id).FirstOrDefault();
             ViewBag.Team = team;
             if (team != null)
             {// nu e null -> exista exhipa
              // si tb sa verific daca are membrii ca sa stiu daca afisez sau nu formular pt adaugare membrii
-                var teammembers = db.TeamMembers.Include("ApplicationUser").Where(tm => tm.TeamId == team.Id);
-
-                ViewBag.TeamMembers = teammembers.ToList();
-
-                //aici mai tb verificat rolul de organizator si daca proiectul e finalizat
-                ViewBag.AddMembersForm = true;
-                // ar trebui sa am si membrii care pot fi adaugati 
-
-                var users_to_be_added = from user in db.Users select user;
-                var user_in_this_team = from user in db.Users
-                                        join member in db.TeamMembers
-                                        on user.Id equals member.ApplicationUserId
-                                        where member.TeamId == team.Id select user;
-                users_to_be_added = users_to_be_added.Except(user_in_this_team);
-                ViewBag.Users = users_to_be_added;
-     
+                ViewBag.Users = GetAllUsersExceptTeammembers(team.Id);
+                ViewBag.TeamMembers = GetAllTeammembers(team.Id);
             }
             else
             {// nu exista echipa dar nu afisez formularul pt adaugare membrii 
-                ViewBag.TeamMembers = null; 
-
-                ViewBag.AddMembersForm = false;
-
+                ViewBag.TeamMembers = new List<ApplicationUser>();
+                ViewBag.Users = new List<ApplicationUser>();
+                ViewBag.TeamMembers = new List<ApplicationUser>();
             }
 
             var tasks = db.Tasks.Include("User").Where(t => t.ProjectId == id);
             ViewBag.Tasks = tasks;
-
-            var project = db.Projects.Include("Team")
-                         .Where(p => p.Id == id)
-                         .First();
-            ViewBag.Project = project;
 
 
             if (TempData.ContainsKey("message"))
@@ -96,18 +83,14 @@ namespace TaskManagementApp.Controllers
         public IActionResult AddMember([FromForm] TeamMember teamMember)
         {
             var project = db.Teams.Where(t => t.Id == teamMember.TeamId).First();
-
+            ViewBag.Users = GetAllUsersExceptTeammembers(teamMember.TeamId);
+            ViewBag.TeamMembers = GetAllTeammembers(teamMember.TeamId);
             if (ModelState.IsValid)
             {
                 db.TeamMembers.Add(teamMember);
                 db.SaveChanges();
             }
-            else
-            {
-                var users = db.Users.Where(u => u.Id == _userManager.GetUserId(User)).ToList();
-                ViewBag.Users = users;
-                //SetAccessRights();
-            }
+           
             return Redirect("/Projects/Show/" + project.ProjectId);
 
         }
@@ -130,17 +113,13 @@ namespace TaskManagementApp.Controllers
                                          .Where(p => p.Id == team.ProjectId)
                                          .First();
 
-
-                var users = db.Users.Where(u => u.Id == _userManager.GetUserId(User)).ToList();
-                ViewBag.Users = users;
-
-
-                return Redirect("/Projects/Show/" + team.ProjectId);
+                return View(team);
 
             }
+
         }
 
-        
+
 
         //TODO -> 2 * NEW METHOD 
         [HttpGet]
@@ -148,8 +127,7 @@ namespace TaskManagementApp.Controllers
         {
             
             Project project = new Project();
-            ViewBag.User = _userManager.GetUserId(User);
-            
+
             return View(project);
         }
 
@@ -174,6 +152,44 @@ namespace TaskManagementApp.Controllers
                 return View(project);
             }
         }
+        [NonAction]
+        public List<ApplicationUser> GetAllUsersExceptTeammembers(int? team_id)
+        {
+
+            var team_proj = db.Teams.Include("Project").Where(t=> t.Id==team_id).First(); 
+            var organizer = db.Users.Where(u => u.Id == team_proj.Project.UserId).First();
+
+            //aici mai tb verificat rolul de organizator si daca proiectul e finalizat
+            // ar trebui sa am si membrii care pot fi adaugati 
+            var users_to_be_added = from user in db.Users select user;
+            var teammembers = from user in db.Users
+                              join member in db.TeamMembers
+                              on user.Id equals member.ApplicationUserId
+                              where member.TeamId == team_id || user.Id == organizer.Id
+                              select user;
+                                      
+            users_to_be_added = users_to_be_added.Except(teammembers);
+
+            var list = users_to_be_added.ToList();
+            return list;
+
+        }
+        [NonAction]
+        public List<ApplicationUser> GetAllTeammembers(int? team_id)
+        {
+            var team_proj = db.Teams.Include("Project").Where(t => t.Id == team_id).First();
+            var organizer = db.Users.Where(u => u.Id == team_proj.Project.UserId).First();
+
+            var user_in_this_team = from user in db.Users
+                                    join member in db.TeamMembers
+                                    on user.Id equals member.ApplicationUserId
+                                    where member.TeamId == team_id || user.Id == organizer.Id
+                                    select user
+                                      ;
+            return user_in_this_team.ToList();
+        }
+
+
 
 
     }
