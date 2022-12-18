@@ -100,7 +100,11 @@ namespace TaskManagementApp.Controllers
                 db.TeamMembers.Add(teamMember);
                 db.SaveChanges();
             }
-           
+            var members = from member in db.TeamMembers
+                          where member.TeamId == teamMember.TeamId
+                          select member;
+            ViewBag.Members = members;
+
             return Redirect("/Projects/Show/" + project.ProjectId);
 
         }
@@ -108,23 +112,26 @@ namespace TaskManagementApp.Controllers
         [HttpPost]
         public IActionResult Show([FromForm] Team team)
         {
+            Project project = db.Projects.Include("Team")
+                         .Where(p => p.Id == team.ProjectId)
+                         .First();
+
+            var users = db.Users.Where(u => u.Id == _userManager.GetUserId(User)).ToList();
+            ViewBag.Users = users;
+
             if (ModelState.IsValid)
             {
                 db.Teams.Add(team);
                 db.SaveChanges();
+                SetTempDataMessage("Team has been added", "alert-success");
+
                 return Redirect("/Projects/Show/" + team.ProjectId);
             }
             else
             {
-                Project project = db.Projects.Include("Team")
-                                         .Where(p => p.Id == team.ProjectId)
-                                         .First();
+                SetTempDataMessage("Team could not have been added!", "alert-danger");
 
-                var users = db.Users.Where(u => u.Id == _userManager.GetUserId(User)).ToList();
-                ViewBag.Users = users;
-
-
-                return Redirect("/Projects/Show/" + team.ProjectId);
+                return View(team);
             }
         }
         [HttpPost]
@@ -136,12 +143,12 @@ namespace TaskManagementApp.Controllers
             {
                 db.Tasks.Add(task);
                 db.SaveChanges();
-                TempData["message"] = "Task has been added";
+                SetTempDataMessage("Task has been added","alert-success");
             }
             else
             {
-                TempData["message"] = ":((";
-                TempData["messageType"] = "alert-danger";
+                SetTempDataMessage("Task could not have been added!", "alert-danger");
+                return View(task);
 
             }
             return Redirect("/Projects/Show/" + task.ProjectId);
@@ -170,13 +177,15 @@ namespace TaskManagementApp.Controllers
             {
                 db.Projects.Add(project);
                 db.SaveChanges();
-                TempData["message"] = "Project successfully added";
-               
+
+                SetTempDataMessage("Project successfully added", "alert-success");
 
                 return RedirectToAction("Show", "Projects", new { id = project.Id });
             }
             else
             {
+                SetTempDataMessage("Project could not be added!", "alert-danger");
+
                 return View(project);
             }
         }
@@ -206,16 +215,26 @@ namespace TaskManagementApp.Controllers
         public List<ApplicationUser> GetAllTeammembers(int? team_id)
         {
             var team_proj = db.Teams.Include("Project").Where(t => t.Id == team_id).First();
-            var organizer = db.Users.Where(u => u.Id == team_proj.Project.UserId).First();
+            var organizer = db.Users.Where(u => u.Id == team_proj.Project.UserId);
 
             var user_in_this_team = from user in db.Users
                                     join member in db.TeamMembers
                                     on user.Id equals member.ApplicationUserId
-                                    where member.TeamId == team_id || user.Id == organizer.Id
+                                    where member.TeamId == team_id 
                                     select user
                                       ;
-            return user_in_this_team.ToList();
+            return user_in_this_team.Union(organizer).ToList();
+        }
+
+        [NonAction]
+        public void SetTempDataMessage(string message, string style)
+        {
+            TempData["MessageProjects"] = message;
+            TempData["MessageStyleProjects"] = style;
+
+
         }
 
     }
+
 }

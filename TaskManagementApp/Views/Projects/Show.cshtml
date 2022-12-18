@@ -1,7 +1,8 @@
 ﻿
-@if (ViewBag.Message != null)
+@if (TempData.ContainsKey("MessageProjects"))
 {
-    <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
+    <h2 class="alert @TempData["MessageStyleProjects"] p-3 rounded-3 text-center mb-5"> 
+        @TempData["MessageProjects"]</h2>
 }
 
 <h2>@ViewBag.Project.Name</h2>
@@ -39,6 +40,7 @@
 
     } else {
         <h5>Project team:<span class="badge badge-secondary"> <a class="nav-link text-dark" href="/Teams/Show/@ViewBag.Team.Id"> @ViewBag.Team.Name</a></span></h5>
+        <h5>Project tasks:<span class="badge badge-secondary"> <a class="nav-link text-dark" href="/Tasks/Index/@ViewBag.Project.Id"> Team Tasks</a></span></h5>
 
            // afisare membrii
             <div class="d-flex">
@@ -77,35 +79,51 @@
             }
             </div>
 
-            <div class="card">
-                <form method="post" action="/Projects/AddTask/">
 
-                    <div class="card-body">
-                        <input type="hidden" name="ProjectId" value="@ViewBag.Project.Id" />
-                        @Html.Label("Name", "Task Name")
-                        <br />
-                        @Html.TextBox("Name", null, new { @class = "form-control" })
-                        @Html.Label("Description", "Description")
-                        <br />
+        <div class="accordion" id="accordionExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        Add a New Task for the Project
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+@*                        <div class="card">
+*@                            <form method="post" action="/Projects/AddTask/">
 
-                        @Html.TextBox("Description", null, new { @class = "form-control" })
+                                @*<div class="card-body">*@
+                                    <input type="hidden" name="ProjectId" value="@ViewBag.Project.Id" />
+                                    @Html.Label("Name", "Task Name")
+                                    <br />
+                                    @Html.TextBox("Name", null, new { @class = "form-control" })
+                                    @Html.ValidationMessage("Name", null, new { @class = "text-danger"})
 
-                        <br />
-                        <select name="UserId" class="form-control">
-                            <option selected>Add member for task</option>
-                            @foreach (var member in ViewBag.Members)
-                            {
-                                <option value="@member.ApplicationUserId">@member.ApplicationUser.FirstName @member.ApplicationUser.LastName</option>
-                            }
-                        </select>
-                        <br />
+                                    @Html.Label("Description", "Description")
+                                    <br />
 
+                                    @Html.TextBox("Description", null, new { @class = "form-control" })
+                                    @Html.ValidationMessage("Description", null, new { @class = "text-danger"})
+
+                                    <br />
+                                    <select name="UserId" class="form-control">
+                                        <option selected>Add member for task</option>
+                                        @foreach (var member in ViewBag.Members)
+                                        {
+                                            <option value="@member.ApplicationUserId">@member.ApplicationUser.FirstName @member.ApplicationUser.LastName</option>
+                                        }
+                                    </select>
+                                    <br />
+
+@*                                </div>
+*@
+                                <button class="btn btn-success " type="submit">Create task</button>
+
+                            </form>
+
+                        </div>
                     </div>
-
-                    <button class="btn btn-success " type="submit">Create task</button>
-
-                </form>
-             
+                </div>
             </div>
     
 
@@ -113,19 +131,29 @@
 
 </div>
 
+<div class="container">
 
-@foreach (var task in ViewBag.Tasks)
-{
-    <div class="card">
-        <div class="card-body">
 
-            <h3 class="card-title alert-success py-3 px-3 rounded-2">@task.Name</h3>
-            <div>Assigned to : @task.User.FirstName</div>
-            <div>Status : @task.status</div>
-            <div>Status : @task.CreatedDate</div>
-            <div>Status : @task.Description</div>
+<div class="row">
+    @foreach (var task in ViewBag.Tasks)
+    {
+        <div class="col-4 mb-4">
+        <div class="card">
+            <div class="card-body">
 
+                <h3 class="card-title alert-success py-3 px-3 rounded-2">
+                    <a class="nav-link text-dark" href="/Tasks/Show/@task.Id"> @task.Name</a>
+                </h3>
+                <div>Assigned to : @task.User.FirstName</div>
+                <div>Status : @task.status</div>
+                <div>Created : @task.CreatedDate</div>
+                <!--<div>Description : @task.Description</div>-->
+
+            </div>
         </div>
-    </div>
-    <br />
-}
+        <br />
+        </div>
+    }
+
+</div>
+</div>

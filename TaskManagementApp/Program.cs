@@ -51,8 +51,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
+name: "taskIndex",
+pattern: "Tasks/Index/{project_id}",
+defaults: new { controller = "Tasks", action = "Index"  });
+
+app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Projects}/{action=Index}/{id?}");
+
+
 app.MapRazorPages();
 
 app.Run();

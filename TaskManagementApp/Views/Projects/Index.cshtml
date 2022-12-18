@@ -1,9 +1,14 @@
 ﻿<h2>Projects</h2>
 <br />
-@if (ViewBag.Message != null)
+
+
+@if (TempData.ContainsKey("MessageProjects"))
 {
-    <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
+    <h2 class="alert @TempData["MessageStyleProjects"] p-3 rounded-3 text-center mb-5">
+        @TempData["MessageProjects"]
+    </h2>
 }
+
 @foreach (var project in ViewBag.Projects)
 {
     <div class="card">
@@ -12,7 +17,7 @@
             <h3 class="card-title alert-success py-3 px-3 rounded-2"><a class=" nav-link text-success" href="/Projects/Show/@project.Id">@project.Name</a></h3>
 
             <div class="card-text">@project.Description</div>
-            <div class="card-text">Creat de @project.User.FirstName la data de @project.CreatedDate.ToShortDateString()</div>
+            <div class="card-text">Created by @project.User.FirstName at @project.CreatedDate.ToShortDateString()</div>
 
         </div>
     </div>

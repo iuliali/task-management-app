@@ -2,8 +2,12 @@
 
 
 <br />
-@if(ViewBag.Message != null){
-    <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
+
+@if (TempData.ContainsKey("MessageProjects"))
+{
+    <h2 class="alert @TempData["MessageStyleProjects"] p-3 rounded-3 text-center mb-5">
+        @TempData["MessageProjects"]
+    </h2>
 }
 <br />
 

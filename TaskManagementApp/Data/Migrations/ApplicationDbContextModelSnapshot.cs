@@ -258,7 +258,7 @@ namespace TaskManagementApp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("TaskManagementApp.Models.Project", b =>
@@ -306,9 +306,11 @@ namespace TaskManagementApp.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ProjectId")
@@ -440,13 +442,15 @@ namespace TaskManagementApp.Data.Migrations
 
             modelBuilder.Entity("TaskManagementApp.Models.Comment", b =>
                 {
-                    b.HasOne("TaskManagementApp.Models.Task", null)
+                    b.HasOne("TaskManagementApp.Models.Task", "Task")
                         .WithMany("Comments")
                         .HasForeignKey("TaskId");
 
                     b.HasOne("TaskManagementApp.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Task");
 
                     b.Navigation("User");
                 });

@@ -32,6 +32,8 @@ namespace TaskManagementApp.Data
             .WithMany(tm => tm.TeamMembers)
             .HasForeignKey(tm => tm.TeamId);
 
+               
+
 
             modelBuilder.Entity<Team>()
             .HasOne<Project>(t => t.Project)

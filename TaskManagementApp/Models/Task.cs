@@ -7,7 +7,11 @@ namespace TaskManagementApp.Models
         [Key]
         public int Id { get; set; }
 
+        [Required(ErrorMessage ="Task name is required")]
+
         public string? Name { get; set; }
+        [Required(ErrorMessage = "Task description is required")]
+
         public string? Description { get; set; }
         public DateTime? CreatedDate { get; set; }
         public string? status { get; set; }

@@ -1,14 +1,11 @@
-﻿<h2>@ViewBag.TeamName</h2>
+﻿<h2>Team : @ViewBag.TeamName</h2>
 
-@foreach (var member in ViewBag.Members)
+@foreach (var member in ViewBag.MembersTeam)
 {
     <div class="card">
         <div class="card-body">
             
             <h3 class="card-title alert-success py-3 px-3 rounded-2">@member.ApplicationUser.FirstName</h3>
-
-
-        
 
         </div>
     </div>

@@ -1,0 +1,101 @@
+﻿<!--Show page for a specific task + comments-->
+
+@if (TempData.ContainsKey("MessageTasks"))
+{
+    <h2 class="alert @TempData["MessageTypeTasks"] p-3 rounded-3 text-center mb-5">@TempData["MessageTasks"]</h2>
+}
+
+
+
+<div class="" style="width: 18rem;">
+    <div class="card-body">
+        <h3 class="card-title">@ViewBag.TaskShow.Name</h3>
+
+        <div class="card-text">Assigned to : @ViewBag.TaskShow.User.FirstName</div>
+        <div class="card-text">Description: @ViewBag.TaskShow.Description </div>
+        <div class="card-text">Status : @ViewBag.TaskShow.status</div>
+        <div class="card-text">Created : @ViewBag.TaskShow.CreatedDate</div>
+    </div>
+</div>
+
+
+
+<!--formular commentarii-->
+@*<button onclick="displayForm()" type="button" class="btn btn-primary btn-sm" >Small button</button>
+*@
+
+
+<div class="accordion" id="accordionExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" 
+            aria-expanded="false" aria-controls="collapseOne">
+                Add comment
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <div id="form-comment" class="card">
+                    <form method="post" action="/Tasks/AddComment/@ViewBag.TaskShow.Id">
+
+                        <div class="card-body">
+                            @Html.Label("Content", "Content")
+                            <br />
+                            @Html.TextArea("Content", null, new { @class = "form-control" })
+                            @Html.ValidationMessage("Content", null, new { @class = "text-danger"})
+
+                            <br />
+                        </div>
+
+                        <button class="btn btn-success " type="submit">Add comment</button>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+
+
+<!--lista comentariilor-->
+@foreach (var comm in ViewBag.Comments)
+{
+    <div class="container">
+        <div class="row">
+            
+        <div class="card-body">
+            <div class="card-text border-1">@comm.Content</div>
+            <div>By : @comm.User.FirstName at @comm.CreatedAt</div>
+        </div>
+            <div class="d-flex">
+                <!--Buttons for edit and delete-->
+                <div>
+
+                    <a class="btn btn-outline-primary" href="/Comments/Edit/@comm.Id"><i class="bi bi-pencil-square"></i>Editeaza</a>
+
+                </div>
+
+                <div>
+
+                    <form method="post" action="/Comments/Delete/@comm.Id">
+
+                        <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash"></i>Sterge</button>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+}
+
+<script>
+   /* function displayForm() {
+        var form = document.getElementById("form-comment");
+        form.style.display = "block";
+    }*/
+
+</script>
