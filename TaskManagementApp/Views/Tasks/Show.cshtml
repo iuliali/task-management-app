@@ -60,11 +60,12 @@
 
     <br />
 <!--lista comentariilor-->
+<h5>Comments on this task</h5>
+<div class="container border border-secondary rounded">
+
 @foreach (var comm in ViewBag.Comments)
 {
-    <div class="container border border-secondary rounded">
 
-        <h5>Comments on this task</h5>
         <div class="row">
          
         <div class="card-body">
@@ -96,9 +97,11 @@
                 }
             
         </div>
-    </div>
+    
     <br />
 }
+    <div class="container border border-secondary rounded">
+
 
 <script>
    /* function displayForm() {
