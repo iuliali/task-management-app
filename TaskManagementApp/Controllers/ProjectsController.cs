@@ -31,6 +31,7 @@ namespace TaskManagementApp.Controllers
 
         public IActionResult Index()
         {
+            SetAccessRights();
             var projects = db.Projects.Include("User");
             ViewBag.Projects = projects;
 
@@ -45,6 +46,7 @@ namespace TaskManagementApp.Controllers
 
         public IActionResult Show(int id)
         {
+            SetAccessRights();
             var users = db.Users.Where(u => u.Id == _userManager.GetUserId(User)).ToList();
             ViewBag.Users = users;
 
@@ -54,8 +56,9 @@ namespace TaskManagementApp.Controllers
             ViewBag.Project = project;
 
 
-            var team = db.Teams.Where(t => t.ProjectId == id).FirstOrDefault();
+            var team = db.Teams.Include("Project").Where(t => t.ProjectId == id).FirstOrDefault();
             ViewBag.Team = team;
+
             if (team != null)
             {// nu e null -> exista exhipa
              // si tb sa verific daca are membrii ca sa stiu daca afisez sau nu formular pt adaugare membrii
@@ -68,11 +71,7 @@ namespace TaskManagementApp.Controllers
                 ViewBag.Users = new List<ApplicationUser>();
                 ViewBag.TeamMembers = new List<ApplicationUser>();
             }
-            /*var members = from teamm in db.Teams
-                          join projectt in db.Projects on team.ProjectId equals projectt.Id
-                          join member in db.TeamMembers on team.Id equals member.TeamId
-                          where projectt.Id == id
-                          select member;*/
+
             var members = from member in db.TeamMembers
                            where member.TeamId == team.Id && team.ProjectId == id
                            select member;
@@ -81,37 +80,58 @@ namespace TaskManagementApp.Controllers
             var tasks = db.Tasks.Include("User").Where(t => t.ProjectId == id);
             ViewBag.Tasks = tasks;
 
-
-            if (TempData.ContainsKey("message"))
-            {
-                ViewBag.Message = TempData["message"];
-            }
+        
             return View();
         }
 
         [HttpPost]
         public IActionResult AddMember([FromForm] TeamMember teamMember)
         {
-            var project = db.Teams.Where(t => t.Id == teamMember.TeamId).First();
-            ViewBag.Users = GetAllUsersExceptTeammembers(teamMember.TeamId);
-            ViewBag.TeamMembers = GetAllTeammembers(teamMember.TeamId);
-            if (ModelState.IsValid)
-            {
-                db.TeamMembers.Add(teamMember);
-                db.SaveChanges();
-            }
+            SetAccessRights();
             var members = from member in db.TeamMembers
                           where member.TeamId == teamMember.TeamId
                           select member;
             ViewBag.Members = members;
 
-            return Redirect("/Projects/Show/" + project.ProjectId);
+            var team = db.Teams.Where(t => t.Id == teamMember.TeamId).First();
+
+            var project = db.Projects.Include("Team")
+              .Where(p => p.Id == team.ProjectId)
+              .First();
+            ViewBag.Project = project;
+
+            ViewBag.Users = GetAllUsersExceptTeammembers(teamMember.TeamId);
+            ViewBag.TeamMembers = GetAllTeammembers(teamMember.TeamId);
+            var organizer = GetProjectOrganizerByProjectId(team.ProjectId);
+
+            if (_userManager.GetUserId(User) == organizer.Id || ViewBag.IsAdmin) //check if current user is the organizer
+            {
+                if (ModelState.IsValid)
+                {
+                    db.TeamMembers.Add(teamMember);
+                    db.SaveChanges();
+                    SetTempDataMessage("Member added", "alert-success");
+                }
+                else
+                {
+                    SetTempDataMessage("Member could not be added", "alert-danger");
+
+                }
+            }
+            else
+            {
+                SetTempDataMessage("You don't have rights to add members to the team", "alert-danger");
+
+            }
+
+            return Redirect("/Projects/Show/" + project.Id);
 
         }
 
         [HttpPost]
         public IActionResult Show([FromForm] Team team)
         {
+            SetAccessRights();
             Project project = db.Projects.Include("Team")
                          .Where(p => p.Id == team.ProjectId)
                          .First();
@@ -137,18 +157,32 @@ namespace TaskManagementApp.Controllers
         [HttpPost]
         public IActionResult AddTask([FromForm] Task task)
         {
+            SetAccessRights();
+            var organizer = GetProjectOrganizerByProjectId(task.ProjectId);
+
             task.CreatedDate = DateTime.Now;
             task.status = "Not started";
-            if (ModelState.IsValid)
+            
+
+            if (_userManager.GetUserId(User) == organizer.Id || ViewBag.IsAdmin) //check if current user is the organizer
             {
-                db.Tasks.Add(task);
-                db.SaveChanges();
-                SetTempDataMessage("Task has been added","alert-success");
-            }
-            else
+                if (ModelState.IsValid)
+                {
+                    db.Tasks.Add(task);
+                    db.SaveChanges();
+
+                    SetTempDataMessage("Task has been added", "alert-success");
+                }
+                else
+                {
+                    SetTempDataMessage("Task could not have been added!", "alert-danger");
+                    
+                    //return View(task);
+
+                }
+            }else
             {
-                SetTempDataMessage("Task could not have been added!", "alert-danger");
-                return View(task);
+                SetTempDataMessage("You don't have rights to add task for this team", "alert-danger");
 
             }
             return Redirect("/Projects/Show/" + task.ProjectId);
@@ -156,11 +190,12 @@ namespace TaskManagementApp.Controllers
 
 
 
+
         //TODO -> 2 * NEW METHOD 
         [HttpGet]
         public IActionResult New()
         {
-            
+            SetAccessRights();
             Project project = new Project();
 
             return View(project);
@@ -169,7 +204,7 @@ namespace TaskManagementApp.Controllers
         [HttpPost]
         public IActionResult New(Project project)
         {
-
+            SetAccessRights();
             project.CreatedDate = DateTime.Now;
             project.UserId = _userManager.GetUserId(User);
 
@@ -221,8 +256,7 @@ namespace TaskManagementApp.Controllers
                                     join member in db.TeamMembers
                                     on user.Id equals member.ApplicationUserId
                                     where member.TeamId == team_id 
-                                    select user
-                                      ;
+                                    select user;
             return user_in_this_team.Union(organizer).ToList();
         }
 
@@ -233,6 +267,40 @@ namespace TaskManagementApp.Controllers
             TempData["MessageStyleProjects"] = style;
 
 
+        }
+
+        [NonAction]
+        private void SetAccessRights()
+        {
+            ViewBag.IsAdmin = User.IsInRole("Admin");
+
+            ViewBag.CurrentUser = _userManager.GetUserId(User);
+        }
+
+        [NonAction]
+        public Project GetProjectById(int? id)
+        {
+            return db.Projects.Where(p => p.Id == id).FirstOrDefault();
+        }
+        [NonAction]
+        public Team GetTeamById(int? id)
+        {
+            return db.Teams.Where(t => t.Id == id).FirstOrDefault();
+        }
+
+        [NonAction]
+        private Project? GetProjectByTeamId(int? task_id)
+        {
+            var team = GetTeamById(task_id);
+
+            return db.Projects.Where(p => p.Id == team.ProjectId).FirstOrDefault();
+        }
+
+        [NonAction]
+        private ApplicationUser? GetProjectOrganizerByProjectId(int? project_id)
+        {
+            var project = db.Projects.Where(p => p.Id == project_id).FirstOrDefault();
+            return db.Users.Where(u => u.Id == project.UserId).FirstOrDefault();
         }
 
     }

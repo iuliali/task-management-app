@@ -15,6 +15,7 @@ namespace TaskManagementApp.Models
         public string? Description { get; set; }
         public DateTime? CreatedDate { get; set; }
         public string? status { get; set; }
+        [Required(ErrorMessage = "Task agignee is required")]
         public string? UserId { get; set; }
         public int? ProjectId { get; set; }   
 

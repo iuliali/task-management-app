@@ -15,7 +15,7 @@
         <div> There is no team for this project ! Create one : </div>
         <div class="container">
                 <div class="card">
-                    <form method="post" action="/Projects/Show/@ViewBag.Project.Id">
+                    <form method="post" action="/Projects/Show/">
 
                         <div class="card-body">
 
@@ -79,40 +79,41 @@
             }
             </div>
 
-
-        <div class="accordion" id="accordionExample">
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                        Add a New Task for the Project
-                    </button>
-                </h2>
-                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-@*                        <div class="card">
+        @if (ViewBag.UserId == ViewBag.Project.UserId || ViewBag.IsAdmin)
+        {
+            <div class="accordion" id="accordionExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            Add a New Task for the Project
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                            @*                        <div class="card">
 *@                            <form method="post" action="/Projects/AddTask/">
 
                                 @*<div class="card-body">*@
-                                    <input type="hidden" name="ProjectId" value="@ViewBag.Project.Id" />
-                                    @Html.Label("Name", "Task Name")
-                                    <br />
-                                    @Html.TextBox("Name", null, new { @class = "form-control" })
-                                    @Html.ValidationMessage("Name", null, new { @class = "text-danger"})
+                                <input type="hidden" name="ProjectId" value="@ViewBag.Project.Id" />
+                                @Html.Label("Name", "Task Name")
+                                <br />
+                                @Html.TextBox("Name", null, new { @class = "form-control" })
+                                @Html.ValidationMessage("Name", null, new { @class = "text-danger"})
 
-                                    @Html.Label("Description", "Description")
-                                    <br />
+                                @Html.Label("Description", "Description")
+                                <br />
 
-                                    @Html.TextBox("Description", null, new { @class = "form-control" })
-                                    @Html.ValidationMessage("Description", null, new { @class = "text-danger"})
+                                @Html.TextBox("Description", null, new { @class = "form-control" })
+                                @Html.ValidationMessage("Description", null, new { @class = "text-danger"})
 
-                                    <br />
-                                    <select name="UserId" class="form-control">
-                                        <option selected>Add member for task</option>
-                                        @foreach (var member in ViewBag.Members)
-                                        {
-                                            <option value="@member.ApplicationUserId">@member.ApplicationUser.FirstName @member.ApplicationUser.LastName</option>
-                                        }
-                                    </select>
+                                <br />
+                                <select name="UserId" class="form-control">
+                                    <option selected>Add member for task</option>
+                                    @foreach (var member in ViewBag.Members)
+                                    {
+                                        <option value="@member.ApplicationUserId">@member.ApplicationUser.FirstName @member.ApplicationUser.LastName</option>
+                                    }
+                                </select>
                                     <br />
 
 @*                                </div>
@@ -125,6 +126,7 @@
                     </div>
                 </div>
             </div>
+            }
     
 
     }

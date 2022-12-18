@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementApp.Data;
 using TaskManagementApp.Models;
 
 namespace TaskManagementApp.Controllers
 {
+    [Authorize]
     public class CommentsController : Controller
     {
         private readonly ApplicationDbContext db;
@@ -27,32 +29,53 @@ namespace TaskManagementApp.Controllers
         }
         public IActionResult Edit(int id)
         {
+            SetAccessRights();
             Comment comm = db.Comments.Where(c => c.Id == id).First();
 
             // trebuie verificate drepturi de edit
 
-            return View(comm);
-            
+            if (_userManager.GetUserId(User) == comm.UserId || ViewBag.IsAdmin)
+            { //can edit the comment
+                return View(comm);
+            }
+            else
+            { // another user cannot edit the comment
+                SetTempDataMessage("You don't have rights to edit the comment !", "alert-danger");
+                return Redirect("/Tasks/Show/" + comm.TaskId);
+
+            }
+
         }
         [HttpPost]
         public IActionResult Edit(int id, Comment requestComm)
         {
+            SetAccessRights();
             Comment comm = db.Comments.Where(c => c.Id == id).First();
 
             // trebuie verificate drepturi de edit
+            if (_userManager.GetUserId(User) == comm.UserId || ViewBag.IsAdmin)
+            { //can edit the comment
+                if (ModelState.IsValid)
+                {
+                    comm.Content = requestComm.Content;
 
-            if (ModelState.IsValid)
-            {
-                comm.Content = requestComm.Content;
+                    db.SaveChanges();
 
-                db.SaveChanges();
-
-                return Redirect("/Tasks/Show/" + comm.TaskId);
+                    return Redirect("/Tasks/Show/" + comm.TaskId);
+                }
+                else
+                {
+                    //add unsuccessfull  message
+                    return View(requestComm);
+                }
             }
             else
-            {
-                //add unsuccessfull  message
-                return View( requestComm);
+            { // another user cannot edit the comment
+                SetTempDataMessage("You don't have rights to edit the comment !", "alert-danger");
+                return Redirect("/Tasks/Show/" + comm.TaskId);
+
+
+
             }
 
 
@@ -61,15 +84,37 @@ namespace TaskManagementApp.Controllers
         [HttpPost]
         public IActionResult Delete(int id)
         {
+            SetAccessRights();
             Comment comm = db.Comments.Where(c => c.Id == id).First();
 
-            //VERIFICARI DE DREPTURI DE STERGERE
+            if (_userManager.GetUserId(User) == comm.UserId || ViewBag.IsAdmin)
+            { //can delete the comment
 
+                db.Comments.Remove(comm);
+                db.SaveChanges();
+            }
+            else
+            { // another user cannot delete the comment
 
-            db.Comments.Remove(comm);
-            db.SaveChanges();
+                SetTempDataMessage("You don't have rights to delete the comment !", "alert-danger");
+
+            }
             return Redirect("/Tasks/Show/" + comm.TaskId);
-            
+
+        }
+        [NonAction]
+        private void SetAccessRights()
+        {
+            ViewBag.IsAdmin = User.IsInRole("Admin");
+
+            ViewBag.CurrentUser = _userManager.GetUserId(User);
+        }
+        [NonAction]
+        private void SetTempDataMessage(string message, string style)
+        {
+            TempData["MessageTasks"] = message;
+            TempData["MessageTypeTasks"] = style;
+
 
         }
     }

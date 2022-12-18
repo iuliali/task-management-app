@@ -11,7 +11,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// PASUL 2 - useri si roluri
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
@@ -23,7 +22,6 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// PASUL 5 - useri si roluri
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

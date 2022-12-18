@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementApp.Data;
@@ -7,6 +8,8 @@ using Task = TaskManagementApp.Models.Task;
 
 namespace TaskManagementApp.Controllers
 {
+    [Authorize]
+
     public class TasksController : Controller
     {
         private readonly ApplicationDbContext db;
@@ -24,6 +27,8 @@ namespace TaskManagementApp.Controllers
         }
         public IActionResult Index(int project_id)
         {
+            SetAccessRights();
+
             ViewBag.TasksProject = GetAllTasks(project_id);
 
             var project = db.Projects.Where(p => p.Id == project_id);
@@ -32,8 +37,20 @@ namespace TaskManagementApp.Controllers
             return View();
         }
 
+        public IActionResult MyTasks()
+        {
+            SetAccessRights();
+
+            ViewBag.MyTasks = GetAllTasksCurrentUser();
+
+            return View();
+        }
+
+      
+
         public IActionResult Show(int id)
         {
+            SetAccessRights();
             ViewBag.TaskShow = GetTaskById(id);
 
             ViewBag.Comments = GetAllCommentsOfTask(id);
@@ -43,6 +60,8 @@ namespace TaskManagementApp.Controllers
 
         public IActionResult AddComment(int id, [FromForm] Comment comment)
         {
+            SetAccessRights();
+
             comment.TaskId = id;
             comment.UserId = _userManager.GetUserId(User);
             comment.CreatedAt = DateTime.Now;
@@ -71,7 +90,7 @@ namespace TaskManagementApp.Controllers
             
         }
         [NonAction]
-        public void SetTempDataMessage(string message, string style)
+        private void SetTempDataMessage(string message, string style)
         {
             TempData["MessageTasks"] = message;
             TempData["MessageTypeTasks"] = style;
@@ -80,14 +99,14 @@ namespace TaskManagementApp.Controllers
         }
 
         [NonAction]
-        public List<Task> GetAllTasks(int project_id)
+        private List<Task> GetAllTasks(int project_id)
         {
             return db.Tasks.Include("User")
                 .Where(t => t.ProjectId == project_id).ToList();
         }
 
         [NonAction]
-        public Task? GetTaskById(int id)
+        private Task? GetTaskById(int id)
         {
             
             return db.Tasks.Include("User")
@@ -95,10 +114,24 @@ namespace TaskManagementApp.Controllers
             
         }
         [NonAction]
-        public List<Comment> GetAllCommentsOfTask(int task_id)
+        private List<Comment> GetAllCommentsOfTask(int task_id)
         {
             return db.Comments.Include("User")
                     .Where(c => c.TaskId == task_id).ToList();
+        }
+
+        [NonAction]
+        private void SetAccessRights()
+        {
+            ViewBag.IsAdmin = User.IsInRole("Admin");
+
+            ViewBag.CurrentUser = _userManager.GetUserId(User);
+        }
+
+        private List<Task> GetAllTasksCurrentUser()
+        {
+            var user_id = _userManager.GetUserId(User);
+            return db.Tasks.Include("User").Include("Project").Where(t=>t.UserId == user_id).ToList();
         }
     }
 

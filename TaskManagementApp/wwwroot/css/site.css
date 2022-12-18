@@ -1,18 +1,87 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
+
+
+.field-validation-valid {
+    display: none;
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+.navbar {
+    background-color: #D2D7DF !important;
+    border: none !important;
+    box-shadow: 0 3px 12px #636e72 !important;
+}
+
+a.nav-link {
+    color: #2c2c2c !important;
+}
+
+    a.nav-link:hover {
+        color: #32533d !important;
+    }
+
+.logoutbtn {
+    color: #2c2c2c !important;
+}
+
+    .logoutbtn:hover {
+        color: #00b894 !important;
+    }
+
+
+.alert {
+    padding: 15px !important;
+    margin-bottom: 20px !important;
+    border: 1px solid transparent !important;
+    border-radius: 4px !important;
+    font-size: 20px !important;
+}
+.alert-success {
+    background-color: #227C70 !important;
+    color: white !important;
+}
+
+.alert-danger {
+    background-color: #B22727 !important;
+    color: white !important;
+}
+
+.btn-success {
+    background-color: #006E7F !important;
+    color: white !important;
+}
+
+    .btn-success:hover {
+        background-color: #24A19C !important;
+        color: black !important;
+    }
+
+.head {
+    background-color: #A9294F !important;
+    color: white !important;
+}
+
+    .head:hover {
+        color: white !important;
+    }
+

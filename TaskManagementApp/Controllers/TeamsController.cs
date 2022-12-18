@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementApp.Data;
@@ -6,6 +7,7 @@ using TaskManagementApp.Models;
 
 namespace TaskManagementApp.Controllers
 {
+    [Authorize]
     public class TeamsController : Controller
     {
         private readonly ApplicationDbContext db;
@@ -25,21 +27,11 @@ namespace TaskManagementApp.Controllers
         {
             var teams = db.Teams;
             ViewBag.Teams = teams;
-            if (TempData.ContainsKey("message"))
-            {
-                ViewBag.Message = TempData["message"];
-            }
+
             return View();
         }
         public IActionResult Show(int id)
         {
-
-            /*var members = from user in db.Users
-                        join tm in db.TeamMembers on user.Id equals  tm.ApplicationUserId
-                        where tm.TeamId == id
-                        select user.FirstName; // atentie la metoda asta nu se trimit obiecte in view, ci direct strings
-            */
-
 
             var members = db.TeamMembers.Include("ApplicationUser").Where(m => m.TeamId == id).ToList(); ;
             var teamneame = from team in db.Teams where team.Id == id select team.Name;
@@ -47,11 +39,15 @@ namespace TaskManagementApp.Controllers
 
             ViewBag.MembersTeam = members;
 
-            if (TempData.ContainsKey("message"))
-            {
-                ViewBag.Message = TempData["message"];
-            }
             return View();
+        }
+
+        [NonAction]
+        private void SetAccessRights()
+        {
+            ViewBag.IsAdmin = User.IsInRole("Admin");
+
+            ViewBag.CurrentUser = _userManager.GetUserId(User);
         }
 
 
