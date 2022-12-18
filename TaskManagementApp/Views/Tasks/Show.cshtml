@@ -17,6 +17,11 @@
         <div class="card-text">Created : @ViewBag.TaskShow.CreatedDate</div>
     </div>
 </div>
+<div>
+    <form method="post" action="/Tasks/Delete/@ViewBag.TaskShow.Id">
+        <button class="btn btn-danger" type="submit"><i class="bi bi-trash"></i>Delete task</button>
+    </form>
+</div>
 
 
 

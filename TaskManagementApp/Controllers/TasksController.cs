@@ -84,18 +84,37 @@ namespace TaskManagementApp.Controllers
             {
                 SetTempDataMessage("Comment could not have been added !", "alert-danger");
 
-                return View("Show",comment);
+                return View("Show", comment);
             }
 
             
         }
+        
+        [HttpPost]
+        public ActionResult Delete(int id)
+        {
+            SetAccessRights();
+            Task task = db.Tasks.Include("Comments").Where(t => t.Id == id).First();
+            if(task.UserId == _userManager.GetUserId(User) || ViewBag.IsAdmin)
+            {
+                db.Tasks.Remove(task);
+                db.SaveChanges();
+                TempData["message"] = "The task has been deleted";
+                return Redirect("/Tasks/Index/" + task.ProjectId);
+            }
+            else
+            {
+                SetTempDataMessage("You don't have rights to delete the task!", "alert-danger");
+                return Redirect("/Tasks/Show/" + id);
+            }
+        }
+
+
         [NonAction]
         private void SetTempDataMessage(string message, string style)
         {
             TempData["MessageTasks"] = message;
             TempData["MessageTypeTasks"] = style;
-
-
         }
 
         [NonAction]
