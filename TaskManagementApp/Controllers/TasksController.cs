@@ -91,11 +91,21 @@ namespace TaskManagementApp.Controllers
         }
         
         [HttpPost]
-        public ActionResult Delete(int id)
+        public IActionResult Delete(int id)
         {
             SetAccessRights();
             Task task = db.Tasks.Include("Comments").Where(t => t.Id == id).First();
-            if(task.UserId == _userManager.GetUserId(User) || ViewBag.IsAdmin)
+            //fac o fct pt organizer cu getorganizerfortask
+
+
+
+
+
+            var organizer = (from taskk in db.Tasks
+                            join project in db.Projects on taskk.ProjectId equals project.Id
+                            where taskk.Id == id
+                            select project.UserId).FirstOrDefault();
+            if(organizer == _userManager.GetUserId(User) || ViewBag.IsAdmin)
             {
                 db.Tasks.Remove(task);
                 db.SaveChanges();
@@ -108,7 +118,56 @@ namespace TaskManagementApp.Controllers
                 return Redirect("/Tasks/Show/" + id);
             }
         }
-
+        public IActionResult Edit(int id)
+        {
+            SetAccessRights();
+            Task task = db.Tasks.Where(t => t.Id == id).First();
+            var organizer = (from taskk in db.Tasks
+                             join project in db.Projects on taskk.ProjectId equals project.Id
+                             where taskk.Id == id
+                             select project.UserId).FirstOrDefault();
+            if(task.UserId == _userManager.GetUserId(User) || organizer == _userManager.GetUserId(User) || ViewBag.IsAdmin)
+            {
+                ViewBag.TaskToEdit = task;
+                return View(task);
+                //return RedirectToAction("Edit", "Tasks", new {id = id, requestTask = task});
+            }
+            else
+            {
+                SetTempDataMessage("You don't have rights to edit the task!", "alert-danger");
+                return Redirect("/Tasks/Show/" + id);
+            }
+        }
+        [HttpPost]
+        public IActionResult Edit(int id, Task requestTask)
+        {
+            SetAccessRights();
+            Task task = db.Tasks.Where(t => t.Id == id).First();
+            var organizer = (from taskk in db.Tasks
+                             join project in db.Projects on taskk.ProjectId equals project.Id
+                             where taskk.Id == id
+                             select project.UserId).FirstOrDefault();
+            if(task.UserId == _userManager.GetUserId(User) || organizer == _userManager.GetUserId(User) || ViewBag.IsAdmin)
+            {
+                if(ModelState.IsValid)
+                {
+                    task.status = requestTask.status;
+                    db.SaveChanges();
+                    return Redirect("/Tasks/Show/" + id);
+                }
+                else
+                {
+                    //add unsuccessfull  message
+                    ViewBag.TaskToEdit = task;
+                    return View(requestTask);
+                }
+            }
+            else
+            { // another user cannot edit the comment
+                SetTempDataMessage("You don't have rights to edit the task!", "alert-danger");
+                return Redirect("/Tasks/Show/" + id);
+            }
+        }
 
         [NonAction]
         private void SetTempDataMessage(string message, string style)
