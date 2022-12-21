@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TaskManagementApp.Data;
 using TaskManagementApp.Models;
 using Task = TaskManagementApp.Models.Task;
@@ -43,15 +44,19 @@ namespace TaskManagementApp.Controllers
 
             ViewBag.MyTasks = GetAllTasksCurrentUser();
 
+            SetTaskByStatus(ViewBag.MyTasks);
+
             return View();
         }
 
-      
+       
 
         public IActionResult Show(int id)
         {
             SetAccessRights();
+            
             ViewBag.TaskShow = GetTaskById(id);
+            ViewBag.Organizer = GetProjectOrganizerByProjectId(ViewBag.TaskShow.ProjectId);
 
             ViewBag.Comments = GetAllCommentsOfTask(id);
 
@@ -214,6 +219,37 @@ namespace TaskManagementApp.Controllers
         {
             var user_id = _userManager.GetUserId(User);
             return db.Tasks.Include("User").Include("Project").Where(t=>t.UserId == user_id).ToList();
+        }
+
+        private void SetTaskByStatus(List<Task> myTasks)
+        {
+            ViewBag.MyTasksNotStarted = new List<Task>();
+            ViewBag.MyTasksInProgress = new List<Task>();
+            ViewBag.MyTasksCompleted = new List<Task>();
+
+            foreach (var task in myTasks)
+            {
+                if (task.status.ToLower() == "Not Started".ToLower())
+                {
+                    ViewBag.MyTasksNotStarted.Add(task);
+
+                }
+                else if (task.status.ToLower() == "In Progress".ToLower())
+                {
+                    ViewBag.MyTasksInProgress.Add(task);
+                }
+                else if (task.status.ToLower() == "Completed".ToLower())
+                {
+                    ViewBag.MyTasksCompleted.Add(task);
+                }
+            }
+
+        }
+        [NonAction]
+        private ApplicationUser? GetProjectOrganizerByProjectId(int? project_id)
+        {
+            var project = db.Projects.Where(p => p.Id == project_id).FirstOrDefault();
+            return db.Users.Where(u => u.Id == project.UserId).FirstOrDefault();
         }
     }
 

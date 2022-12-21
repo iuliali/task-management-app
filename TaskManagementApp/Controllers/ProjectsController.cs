@@ -35,14 +35,11 @@ namespace TaskManagementApp.Controllers
             var projects = db.Projects.Include("User");
             ViewBag.Projects = projects;
 
-            if (TempData.ContainsKey("message"))
-            {
-                ViewBag.Message = TempData["message"];
-            }
-
 
             return View();
         }
+
+       
 
         public IActionResult Show(int id)
         {

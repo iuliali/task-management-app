@@ -85,3 +85,8 @@ a.nav-link {
         color: white !important;
     }
 
+.table-head {
+    background-color: #004E64 !important;
+    color: white !important;
+}
+

@@ -7,7 +7,7 @@
     </h2>
 }
 
-<h2>Edit task</h2>
+<h2>Edit task -> Update status</h2>
 <br />
 
 
@@ -21,9 +21,9 @@
     @Html.Label("status", "Status")
     <br />
     <select name="status" class="form-control" required>
-        <option>Not started</option>
-        <option>In progress</option>
-        <option>Completed</option>
+        <option value="Not Started">Not Started</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
     </select>
     <br />
     @Html.ValidationMessage("status", null, new { @class = "text-danger" })

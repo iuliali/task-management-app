@@ -9,25 +9,108 @@ My Tasks
 </h2>
 <br />
 
-@foreach (var task in ViewBag.MyTasks)
-{
-    <div class="card">
-        <div class="card-body">
+<div class="row">
+    <div class="col"> <!--Not started-->
+        <div class="d-flex flex-column">
+            <div class="p-2 ">
+                <div class="">
+                    <h3 class="table-head  py-5 px-5 rounded-2">
+                        NOT STARTED
+                    </h3>
+                    </div>
+                    </div>
+            @foreach (var task in ViewBag.MyTasksNotStarted)
+            {
+                <div class="p-2 card">
+                    <div class="card-body">
 
-            <h3 class="card-title alert-success py-3 px-3 rounded-2">
-                <a class="nav-link text-dark" href="/Tasks/Show/@task.Id"> @task.Name</a>
+                        <h3 class="card-title alert-success py-3 px-3 rounded-2">
+                            <a class="nav-link text-dark" href="/Tasks/Show/@task.Id"> @task.Name</a>
 
-            </h3>
-@*            <div>Description: @task.Description </div>
-        *@           
-            <div>Project: <a class="nav-link text-dark" href="/Projects/Show/@task.ProjectId"> @task.Project.Name</a></div>
-            <div>Status : @task.status</div>
-            <div>Created : @task.CreatedDate</div>
-            @*@if(task.status != "Completed") {
-                <div>Finished : @task.FinishedDate</div>
-            }*@
+                        </h3>
+                        @*            <div>Description: @task.Description </div>
+                    *@
+                        <div>Project: <a class="nav-link text-dark" href="/Projects/Show/@task.ProjectId"> @task.Project.Name</a></div>
+                        <div>Status : @task.status</div>
+                        <div>Created : @task.CreatedDate</div>
+                        @if (task.FinishedDate != null)
+                        {
+                            <div>Finished : @task.FinishedDate</div>
+                        }
 
+                    </div>
+                </div>
+                <br />
+            }
         </div>
     </div>
-    <br />
-}
+    <div class="col"> <!--In progress-->
+        <div class="d-flex flex-column">
+            <div class="p-2 ">
+                <div class="">
+                    <h3 class="table-head  py-5 px-5 rounded-2">
+                       IN PROGRESS
+                    </h3>
+                </div>
+            </div>
+            @foreach (var task in ViewBag.MyTasksInProgress)
+            {
+                <div class="p-2 card">
+                    <div class="card-body">
+
+                        <h3 class="card-title alert-success py-3 px-3 rounded-2">
+                            <a class="nav-link text-dark" href="/Tasks/Show/@task.Id"> @task.Name</a>
+
+                        </h3>
+                        @*            <div>Description: @task.Description </div>
+                    *@
+                        <div>Project: <a class="nav-link text-dark" href="/Projects/Show/@task.ProjectId"> @task.Project.Name</a></div>
+                        <div>Status : @task.status</div>
+                        <div>Created : @task.CreatedDate</div>
+                        @if (task.FinishedDate != null)
+                        {
+                            <div>Finished : @task.FinishedDate</div>
+                        }
+
+                    </div>
+                </div>
+                <br />
+            }
+        </div>
+    </div>
+    <div class="col"> <!--Completed-->
+        <div class="d-flex flex-column">
+            <div class="p-2 ">
+                <div class="">
+                    <h3 class="table-head  py-5 px-5 rounded-2 ">
+                        COMPLETED
+                    </h3>
+                </div>
+            </div>
+            @foreach (var task in ViewBag.MyTasksCompleted)
+            {
+                <div class="p-2 card">
+                    <div class="card-body">
+
+                        <h3 class="card-title alert-success py-3 px-3 rounded-2">
+                            <a class="nav-link text-dark" href="/Tasks/Show/@task.Id"> @task.Name</a>
+
+                        </h3>
+                        @*            <div>Description: @task.Description </div>
+                    *@
+                        <div>Project: <a class="nav-link text-dark" href="/Projects/Show/@task.ProjectId"> @task.Project.Name</a></div>
+                        <div>Status : @task.status</div>
+                        <div>Created : @task.CreatedDate</div>
+                        @if (task.FinishedDate != null)
+                        {
+                            <div>Finished : @task.FinishedDate</div>
+                        }
+
+                    </div>
+                </div>
+                <br />
+            }
+        </div>
+    </div>
+</div>
+</div>
