@@ -130,7 +130,6 @@ namespace TaskManagementApp.Controllers
             {
                 ViewBag.TaskToEdit = task;
                 return View(task);
-                //return RedirectToAction("Edit", "Tasks", new {id = id, requestTask = task});
             }
             else
             {
@@ -151,7 +150,12 @@ namespace TaskManagementApp.Controllers
             {
                 if(ModelState.IsValid)
                 {
+                    // another checks needed -> what happens if task has been already completed?! can be reopened?!!!!
                     task.status = requestTask.status;
+                    if(task.status == "Completed")
+                    {
+                        task.FinishedDate = DateTime.Now;
+                    }
                     db.SaveChanges();
                     return Redirect("/Tasks/Show/" + id);
                 }
@@ -172,8 +176,8 @@ namespace TaskManagementApp.Controllers
         [NonAction]
         private void SetTempDataMessage(string message, string style)
         {
-            TempData["MessageTasks"] = message;
-            TempData["MessageTypeTasks"] = style;
+            TempData["Message"] = message;
+            TempData["MessageStyle"] = style;
         }
 
         [NonAction]

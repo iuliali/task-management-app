@@ -1,8 +1,9 @@
 ﻿<!--Show page for a specific task + comments-->
 
-@if (TempData.ContainsKey("MessageTasks"))
+@if (TempData.ContainsKey("Message"))
 {
-    <h2 class="alert @TempData["MessageTypeTasks"] p-3 rounded-3 text-center mb-5">@TempData["MessageTasks"]</h2>
+    <h2 class="alert @TempData["MessageStyle"] p-3 rounded-3 text-center mb-5">
+        @TempData["Message"]</h2>
 }
 
 

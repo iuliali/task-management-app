@@ -22,7 +22,7 @@ namespace TaskManagementApp.Data
             base.OnModelCreating(modelBuilder);
             // composite primary key 
             modelBuilder.Entity<TeamMember>()
-            .HasKey(tm => new { tm.Id, tm.ApplicationUserId, tm.TeamId });
+            .HasKey(tm => new {tm.Id,  tm.ApplicationUserId, tm.TeamId });
             modelBuilder.Entity<TeamMember>()
             .HasOne(tm => tm.ApplicationUser)
             .WithMany(tm => tm.TeamMembers)

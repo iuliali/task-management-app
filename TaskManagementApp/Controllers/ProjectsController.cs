@@ -63,7 +63,7 @@ namespace TaskManagementApp.Controllers
             {// nu e null -> exista exhipa
              // si tb sa verific daca are membrii ca sa stiu daca afisez sau nu formular pt adaugare membrii
                 ViewBag.Users = GetAllUsersExceptTeammembers(team.Id);
-                ViewBag.TeamMembers = GetAllTeammembers(team.Id);
+                ViewBag.TeamMembers = GetAllTeammembersWithOrganizer(team.Id);
             }
             else
             {// nu exista echipa dar nu afisez formularul pt adaugare membrii 
@@ -88,10 +88,6 @@ namespace TaskManagementApp.Controllers
         public IActionResult AddMember([FromForm] TeamMember teamMember)
         {
             SetAccessRights();
-            var members = from member in db.TeamMembers
-                          where member.TeamId == teamMember.TeamId
-                          select member;
-            ViewBag.Members = members;
 
             var team = db.Teams.Where(t => t.Id == teamMember.TeamId).First();
 
@@ -100,8 +96,10 @@ namespace TaskManagementApp.Controllers
               .First();
             ViewBag.Project = project;
 
+            ViewBag.Members = GetAllTeammembersWithoutOrganizer(team.Id);
+
             ViewBag.Users = GetAllUsersExceptTeammembers(teamMember.TeamId);
-            ViewBag.TeamMembers = GetAllTeammembers(teamMember.TeamId);
+            ViewBag.TeamMembers = GetAllTeammembersWithOrganizer(teamMember.TeamId);
             var organizer = GetProjectOrganizerByProjectId(team.ProjectId);
 
             if (_userManager.GetUserId(User) == organizer.Id || ViewBag.IsAdmin) //check if current user is the organizer
@@ -229,7 +227,7 @@ namespace TaskManagementApp.Controllers
         {
 
             var team_proj = db.Teams.Include("Project").Where(t=> t.Id==team_id).First(); 
-            var organizer = db.Users.Where(u => u.Id == team_proj.Project.UserId).First();
+            var organizer = db.Users.Where(u => u.Id == team_proj.Project.UserId);
 
             //aici mai tb verificat rolul de organizator si daca proiectul e finalizat
             // ar trebui sa am si membrii care pot fi adaugati 
@@ -237,17 +235,20 @@ namespace TaskManagementApp.Controllers
             var teammembers = from user in db.Users
                               join member in db.TeamMembers
                               on user.Id equals member.ApplicationUserId
-                              where member.TeamId == team_id || user.Id == organizer.Id
+                              where member.TeamId == team_id 
                               select user;
                                       
             users_to_be_added = users_to_be_added.Except(teammembers);
+            users_to_be_added = users_to_be_added.Except(organizer);
+
 
             var list = users_to_be_added.ToList();
             return list;
 
         }
+
         [NonAction]
-        public List<ApplicationUser> GetAllTeammembers(int? team_id)
+        public List<ApplicationUser> GetAllTeammembersWithOrganizer(int? team_id)
         {
             var team_proj = db.Teams.Include("Project").Where(t => t.Id == team_id).First();
             var organizer = db.Users.Where(u => u.Id == team_proj.Project.UserId);
@@ -255,16 +256,28 @@ namespace TaskManagementApp.Controllers
             var user_in_this_team = from user in db.Users
                                     join member in db.TeamMembers
                                     on user.Id equals member.ApplicationUserId
-                                    where member.TeamId == team_id 
+                                    where member.TeamId == team_id
                                     select user;
             return user_in_this_team.Union(organizer).ToList();
+        }
+        [NonAction]
+        public List<ApplicationUser> GetAllTeammembersWithoutOrganizer(int? team_id)
+        {
+            var team_proj = db.Teams.Include("Project").Where(t => t.Id == team_id).First();
+           
+            var user_in_this_team = from user in db.Users
+                                    join member in db.TeamMembers
+                                    on user.Id equals member.ApplicationUserId
+                                    where member.TeamId == team_id 
+                                    select user;
+            return user_in_this_team.ToList();
         }
 
         [NonAction]
         public void SetTempDataMessage(string message, string style)
         {
-            TempData["MessageProjects"] = message;
-            TempData["MessageStyleProjects"] = style;
+            TempData["Message"] = message;
+            TempData["MessageStyle"] = style;
 
 
         }

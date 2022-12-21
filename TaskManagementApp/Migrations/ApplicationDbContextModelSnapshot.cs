@@ -3,19 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagementApp.Data;
 
 #nullable disable
 
-namespace TaskManagementApp.Data.Migrations
+namespace TaskManagementApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20221213154121_Projects")]
-    partial class Projects
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -260,7 +258,7 @@ namespace TaskManagementApp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("TaskManagementApp.Models.Project", b =>
@@ -311,6 +309,9 @@ namespace TaskManagementApp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("FinishedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -318,14 +319,11 @@ namespace TaskManagementApp.Data.Migrations
                     b.Property<int?>("ProjectId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserAsigneeId")
-                        .HasColumnType("int");
-
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -334,7 +332,7 @@ namespace TaskManagementApp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Task");
+                    b.ToTable("Tasks");
                 });
 
             modelBuilder.Entity("TaskManagementApp.Models.Team", b =>
@@ -355,7 +353,9 @@ namespace TaskManagementApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("ProjectId")
+                        .IsUnique()
+                        .HasFilter("[ProjectId] IS NOT NULL");
 
                     b.ToTable("Teams");
                 });
@@ -363,7 +363,10 @@ namespace TaskManagementApp.Data.Migrations
             modelBuilder.Entity("TaskManagementApp.Models.TeamMember", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ApplicationUserId")
                         .HasColumnType("nvarchar(450)");
@@ -446,13 +449,15 @@ namespace TaskManagementApp.Data.Migrations
 
             modelBuilder.Entity("TaskManagementApp.Models.Comment", b =>
                 {
-                    b.HasOne("TaskManagementApp.Models.Task", null)
+                    b.HasOne("TaskManagementApp.Models.Task", "Task")
                         .WithMany("Comments")
                         .HasForeignKey("TaskId");
 
                     b.HasOne("TaskManagementApp.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Task");
 
                     b.Navigation("User");
                 });
@@ -468,13 +473,17 @@ namespace TaskManagementApp.Data.Migrations
 
             modelBuilder.Entity("TaskManagementApp.Models.Task", b =>
                 {
-                    b.HasOne("TaskManagementApp.Models.Project", null)
+                    b.HasOne("TaskManagementApp.Models.Project", "Project")
                         .WithMany("Tasks")
                         .HasForeignKey("ProjectId");
 
                     b.HasOne("TaskManagementApp.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
 
                     b.Navigation("User");
                 });
@@ -482,8 +491,8 @@ namespace TaskManagementApp.Data.Migrations
             modelBuilder.Entity("TaskManagementApp.Models.Team", b =>
                 {
                     b.HasOne("TaskManagementApp.Models.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId");
+                        .WithOne("Team")
+                        .HasForeignKey("TaskManagementApp.Models.Team", "ProjectId");
 
                     b.Navigation("Project");
                 });
@@ -510,6 +519,8 @@ namespace TaskManagementApp.Data.Migrations
             modelBuilder.Entity("TaskManagementApp.Models.Project", b =>
                 {
                     b.Navigation("Tasks");
+
+                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("TaskManagementApp.Models.Task", b =>

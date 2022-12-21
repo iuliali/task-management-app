@@ -1,4 +1,10 @@
-﻿<h2>
+﻿@if (TempData.ContainsKey("Message"))
+{
+    <h2 class="alert @TempData["MessageStyle"] p-3 rounded-3 text-center mb-5">
+        @TempData["Message"]
+    </h2>
+}
+<h2>
 My Tasks
 </h2>
 <br />
@@ -17,6 +23,9 @@ My Tasks
             <div>Project: <a class="nav-link text-dark" href="/Projects/Show/@task.ProjectId"> @task.Project.Name</a></div>
             <div>Status : @task.status</div>
             <div>Created : @task.CreatedDate</div>
+            @*@if(task.status != "Completed") {
+                <div>Finished : @task.FinishedDate</div>
+            }*@
 
         </div>
     </div>
