@@ -37,7 +37,7 @@ a.nav-link {
 }
 
     a.nav-link:hover {
-        color: #32533d !important;
+        color: black !important;
     }
 
 .logoutbtn {

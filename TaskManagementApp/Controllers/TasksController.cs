@@ -54,11 +54,12 @@ namespace TaskManagementApp.Controllers
         public IActionResult Show(int id)
         {
             SetAccessRights();
-            
+            // we need to check if the task is from a team we are part of 
+            //otherwise -> error message
             ViewBag.TaskShow = GetTaskById(id);
             ViewBag.Organizer = GetProjectOrganizerByProjectId(ViewBag.TaskShow.ProjectId);
-
             ViewBag.Comments = GetAllCommentsOfTask(id);
+
 
             return View();
         }
@@ -89,10 +90,10 @@ namespace TaskManagementApp.Controllers
             {
                 SetTempDataMessage("Comment could not have been added !", "alert-danger");
 
-                return View("Show", comment);
+                return Redirect("/Tasks/Show/" + id);
             }
 
-            
+
         }
         
         [HttpPost]
@@ -101,10 +102,6 @@ namespace TaskManagementApp.Controllers
             SetAccessRights();
             Task task = db.Tasks.Include("Comments").Where(t => t.Id == id).First();
             //fac o fct pt organizer cu getorganizerfortask
-
-
-
-
 
             var organizer = (from taskk in db.Tasks
                             join project in db.Projects on taskk.ProjectId equals project.Id
@@ -162,11 +159,15 @@ namespace TaskManagementApp.Controllers
                         task.FinishedDate = DateTime.Now;
                     }
                     db.SaveChanges();
+                    SetTempDataMessage("Status Updated!", "alert-success");
+
                     return Redirect("/Tasks/Show/" + id);
                 }
                 else
                 {
                     //add unsuccessfull  message
+                    SetTempDataMessage("Couldn't edit status !", "alert-danger");
+
                     ViewBag.TaskToEdit = task;
                     return View(requestTask);
                 }
