@@ -90,3 +90,23 @@ a.nav-link {
     color: white !important;
 }
 
+
+.bkg-comment {
+    background-color: #eff0e1 !important;
+}
+.bkg-one-comment {
+    background-color: #bce0d1 !important;
+}
+
+.task-page {
+    background-color:aliceblue;
+}
+
+.task {
+    background-color:seagreen ;
+    padding : 5px 2px;
+}
+
+body {
+    background-color:cadetblue !important;
+}

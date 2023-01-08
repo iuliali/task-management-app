@@ -23,8 +23,10 @@ namespace TaskManagementApp.Controllers
             _userManager = userManager;
             _roleManager = roleManager;
         }
+        [Authorize(Roles ="Admin")]
         public IActionResult Index()
         {
+            SetAccessRights();
             var teams = db.Teams;
             ViewBag.Teams = teams;
 
@@ -32,14 +34,81 @@ namespace TaskManagementApp.Controllers
         }
         public IActionResult Show(int id)
         {
+            SetAccessRights();
+
+
+
+            var team = db.Teams.Include("Project").Where(t => t.Id == id).FirstOrDefault();
+
+            
+
+            if(team is null)
+            {
+                SetTempDataMessage("Team cannot be found!!", "alert-danger");
+                return View("Error2");
+            }
+
+            if (!CheckTeamMember(_userManager.GetUserId(User), team.Id) && !ViewBag.IsAdmin && 
+                GetProjectOrganizerByProjectId(team.Project.Id) != ViewBag.CurrentUser)
+            {
+                //should not have access to see the team page 
+                SetTempDataMessage("You do't have rights to access team page", "alert-danger");
+                return View("Error2");
+
+            }
+
 
             var members = db.TeamMembers.Include("ApplicationUser").Where(m => m.TeamId == id).ToList(); ;
-            var teamneame = from team in db.Teams where team.Id == id select team.Name;
-            ViewBag.TeamName = teamneame.First();
+            ViewBag.Team = team;
 
             ViewBag.MembersTeam = members;
+            ViewBag.Organizer = GetProjectOrganizerByProjectId(team.ProjectId);
 
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult DeleteMember(int? id)
+        {
+            SetAccessRights();
+
+
+            var member = db.TeamMembers.Where(m => m.Id == id).FirstOrDefault();
+            if (member is null)
+            {
+                SetTempDataMessage("Member not found!", "alert-danger");
+                return View("Error2");
+            }
+
+            if(!ViewBag.IsAdmin)
+            {
+                SetTempDataMessage("You don't have rights to delete a member!", "alert-danger");
+                return View("Error2");
+
+            }
+
+            //first we have to check if the member had any tasks
+            var team = db.Teams.FirstOrDefault(t => t.Id == member.TeamId);
+            var tasks = db.Tasks.Where(tsk => tsk.ProjectId == team.ProjectId);
+
+            foreach(var task in tasks)
+            {
+                var comments = db.Comments.Where(t => t.TaskId == id).ToList();
+
+                foreach (var comment in comments)
+                {
+                    db.Comments.Remove(comment);
+                }
+                db.Tasks.Remove(task);
+
+            }
+
+            db.TeamMembers.Remove(member);
+            db.SaveChanges();
+
+            return View("Show");
+
+
         }
 
         [NonAction]
@@ -50,6 +119,27 @@ namespace TaskManagementApp.Controllers
             ViewBag.CurrentUser = _userManager.GetUserId(User);
         }
 
+        [NonAction]
+        private ApplicationUser? GetProjectOrganizerByProjectId(int? project_id)
+        {
+            var project = db.Projects.Where(p => p.Id == project_id).FirstOrDefault();
+            return db.Users.Where(u => u.Id == project.UserId).FirstOrDefault();
+        }
+
+        [NonAction]
+        private bool CheckTeamMember(string user_id, int team_id)
+        {
+            var team_member = db.TeamMembers.Where(tm => tm.ApplicationUserId == user_id).Where(tm => tm.TeamId == team_id).FirstOrDefault();
+            if (team_member == null) return false;
+            else return true;
+        }
+
+        [NonAction]
+        private void SetTempDataMessage(string message, string style)
+        {
+            TempData["Message"] = message;
+            TempData["MessageStyle"] = style;
+        }
 
     }
 }

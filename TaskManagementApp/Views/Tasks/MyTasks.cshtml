@@ -4,10 +4,18 @@
         @TempData["Message"]
     </h2>
 }
-<h2>
-My Tasks
-</h2>
-<br />
+
+
+@if (ViewBag.MyTasksNotStarted.Count == 0 && ViewBag.MyTasksInProgress.Count == 0 && ViewBag.MyTasksCompleted.Count == 0)
+{
+    <h2 class="alert alert-danger p-3 rounded-3 text-center mb-5">
+        You don't have any tasks!
+    </h2>
+} else {
+    <h2>
+        My Tasks
+    </h2>
+    <br />
 
 <div class="row">
     <div class="col"> <!--Not started-->
@@ -114,3 +122,4 @@ My Tasks
     </div>
 </div>
 
+}

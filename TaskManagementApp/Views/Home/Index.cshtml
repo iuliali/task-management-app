@@ -1,8 +1,8 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@if (TempData.ContainsKey("Message"))
+{
+    <h2 class="alert @TempData["MessageStyle"] p-3 rounded-3 text-center mb-5">
+        @TempData["Message"]
+    </h2>
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+

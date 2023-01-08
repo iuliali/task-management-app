@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TaskManagementApp.Data;
 using TaskManagementApp.Models;
 using Task = TaskManagementApp.Models.Task;
@@ -54,26 +53,58 @@ namespace TaskManagementApp.Controllers
         public IActionResult Show(int id)
         {
             SetAccessRights();
+            var task = GetTaskById(id);
+
+            if (task is null)
+            {
+                SetTempDataMessage("Task cannot be found!!", "alert-danger");
+                return View("Error2");
+            }
+            var organizer = GetProjectOrganizerByProjectId(task.ProjectId);
             // we need to check if the task is from a team we are part of 
+            var team_id = GetTeamIdByProjectId((int) task.ProjectId);
+
+            if (!CheckTeamMember(_userManager.GetUserId(User), team_id) && !ViewBag.IsAdmin && _userManager.GetUserId(User) != organizer.Id)
+            {
+                SetTempDataMessage("You don't have rights to see the task!", "alert-danger");
+                return Redirect("/Home/Index");
+            }
+
             //otherwise -> error message
-            ViewBag.TaskShow = GetTaskById(id);
-            ViewBag.Organizer = GetProjectOrganizerByProjectId(ViewBag.TaskShow.ProjectId);
+            ViewBag.TaskShow = task;
+            ViewBag.Organizer = organizer;
             ViewBag.Comments = GetAllCommentsOfTask(id);
+            ViewBag.CommentOpen = false;
 
 
             return View();
         }
 
-        public IActionResult AddComment(int id, [FromForm] Comment comment)
+       
+        [HttpPost]
+        public IActionResult Show([FromForm] Comment comment)
         {
             SetAccessRights();
 
-            comment.TaskId = id;
+            //comment.TaskId = id;
+            int id = (int) comment.TaskId;
             comment.UserId = _userManager.GetUserId(User);
             comment.CreatedAt = DateTime.Now;
 
 
-            ViewBag.TaskShow = GetTaskById(id);
+            var task = GetTaskById(id);
+
+            var organizer = GetProjectOrganizerByProjectId(task.ProjectId);
+            // we need to check if the task is from a team we are part of 
+
+            ViewBag.TaskShow = task;
+            var team_id = GetTeamIdByProjectId((int)task.ProjectId);
+
+            if (!CheckTeamMember(_userManager.GetUserId(User), team_id) && !ViewBag.IsAdmin && _userManager.GetUserId(User) != organizer.Id)
+            {
+                SetTempDataMessage("You don't have rights to see the task!", "alert-danger");
+                return Redirect("/Home/Index");
+            }
 
             ViewBag.Comments = GetAllCommentsOfTask(id);
 
@@ -89,8 +120,13 @@ namespace TaskManagementApp.Controllers
             } else
             {
                 SetTempDataMessage("Comment could not have been added !", "alert-danger");
-
-                return Redirect("/Tasks/Show/" + id);
+                SetAccessRights();
+                
+                ViewBag.TaskShow = GetTaskById(id);
+                ViewBag.Organizer = GetProjectOrganizerByProjectId(ViewBag.TaskShow.ProjectId);
+                ViewBag.Comments = GetAllCommentsOfTask(id);
+                ViewBag.CommentOpen = true;
+                return View(comment);
             }
 
 
@@ -107,11 +143,20 @@ namespace TaskManagementApp.Controllers
                             join project in db.Projects on taskk.ProjectId equals project.Id
                             where taskk.Id == id
                             select project.UserId).FirstOrDefault();
+
             if(organizer == _userManager.GetUserId(User) || ViewBag.IsAdmin)
             {
+                var comments = db.Comments.Where(t => t.TaskId == id).ToList();
+                int count = comments.Count();
+                foreach(var comment in comments)
+                {
+                    db.Comments.Remove(comment);
+                }
+
                 db.Tasks.Remove(task);
                 db.SaveChanges();
-                TempData["message"] = "The task has been deleted";
+                SetTempDataMessage("The task has been deleted (with " + count + " comments) !", "alert-danger");
+
                 return Redirect("/Tasks/Index/" + task.ProjectId);
             }
             else
@@ -179,6 +224,72 @@ namespace TaskManagementApp.Controllers
             }
         }
 
+        [HttpGet]
+        [Authorize(Roles ="Admin")]
+        //implement change asignee
+        public IActionResult ChangeAsignee(int? id)
+        {
+            SetAccessRights();
+            var task = db.Tasks.FirstOrDefault(t=> t.Id==id);
+            ViewBag.Task = task;
+            if (task is null)
+            {
+                SetTempDataMessage("Task cannot be found!!", "alert-danger");
+                return View("Error2");
+            }
+
+            if (!ViewBag.IsAdmin)
+            {
+                SetTempDataMessage("You don't have rights to change the task asignee!", "alert-danger");
+                return View("Error2");
+            }
+
+            var project = db.Projects.FirstOrDefault(p => p.Id == task.ProjectId);
+            ViewBag.Project = project;
+            var team = db.Teams.FirstOrDefault(t => t.ProjectId == project.Id);
+            ViewBag.Members = GetAllTeammembersWithoutOrganizer(team.Id);
+            return View();
+
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        //implement change asignee
+        public IActionResult ChangeAsignee([FromForm] Task? task)
+        {
+            SetAccessRights();
+            var task_db = db.Tasks.FirstOrDefault(t => t.Id == task.Id);
+
+            if (ModelState.IsValid)
+            {
+                task_db.UserId = task.UserId;
+                db.SaveChanges();
+                SetTempDataMessage("Task Asignee has been updated !", "alert-success");
+
+                
+                return Redirect("/Tasks/Show/" + task.Id);
+            }
+            else
+            {
+
+                SetTempDataMessage("An error occurred", "alert-danger");
+                return View("Error2");
+            }
+
+            if (!ViewBag.IsAdmin)
+            {
+                SetTempDataMessage("You don't have rights to change the task asignee!", "alert-danger");
+                return View("Error2");
+            }
+
+            var project = db.Projects.FirstOrDefault(p => p.Id == task.ProjectId);
+            ViewBag.Project = project;
+            var team = db.Teams.FirstOrDefault(t => t.ProjectId == project.Id);
+            ViewBag.Members = GetAllTeammembersWithoutOrganizer(team.Id);
+
+        }
+
+
         [NonAction]
         private void SetTempDataMessage(string message, string style)
         {
@@ -191,6 +302,19 @@ namespace TaskManagementApp.Controllers
         {
             return db.Tasks.Include("User")
                 .Where(t => t.ProjectId == project_id).ToList();
+        }
+
+        [NonAction]
+        public List<ApplicationUser> GetAllTeammembersWithoutOrganizer(int? team_id)
+        {
+            var team_proj = db.Teams.Include("Project").Where(t => t.Id == team_id).First();
+
+            var user_in_this_team = from user in db.Users
+                                    join member in db.TeamMembers
+                                    on user.Id equals member.ApplicationUserId
+                                    where member.TeamId == team_id
+                                    select user;
+            return user_in_this_team.ToList();
         }
 
         [NonAction]
@@ -252,6 +376,22 @@ namespace TaskManagementApp.Controllers
             var project = db.Projects.Where(p => p.Id == project_id).FirstOrDefault();
             return db.Users.Where(u => u.Id == project.UserId).FirstOrDefault();
         }
+
+
+        private int GetTeamIdByProjectId(int id)
+        {
+            var team = db.Teams.Where(team => team.ProjectId == id).FirstOrDefault();
+            return team.Id;
+        }
+
+        [NonAction]
+        private bool CheckTeamMember(string user_id, int team_id)
+        {
+            var team_member = db.TeamMembers.Where(tm => tm.ApplicationUserId == user_id).Where(tm => tm.TeamId == team_id).FirstOrDefault();
+            if (team_member == null) return false;
+            else return true;
+        }
+
     }
 
 

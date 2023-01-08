@@ -32,14 +32,15 @@ namespace TaskManagementApp.Data
             .WithMany(tm => tm.TeamMembers)
             .HasForeignKey(tm => tm.TeamId);
 
-               
+            modelBuilder.Entity<Task>().Property(m => m.UserId).IsRequired(true);
+
+
 
 
             modelBuilder.Entity<Team>()
             .HasOne<Project>(t => t.Project)
             .WithOne(p => p.Team);
-            // modelBuilder.Entity<Team>().ToTable("Projects");
-           // modelBuilder.Entity<Project>().ToTable("projects");
+            
         }
     }
 }

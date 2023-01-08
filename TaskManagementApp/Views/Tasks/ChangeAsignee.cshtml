@@ -1,0 +1,35 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<h3>Change Asignee for Task : @ViewBag.Task.Name</h3>
+
+
+<form method="POST" action="/Tasks/ChangeAsignee/@ViewBag.Task.Id">
+    <input type="hidden" name="Id" value="@ViewBag.Task.Id" />
+
+    <input type="hidden" name="ProjectId" value="@ViewBag.Project.Id" />
+    <input type="hidden" name="Name" value="@ViewBag.Task.Name" />
+    <input type="hidden" name="Description" value="@ViewBag.Task.Description" />
+
+    <div class="d-flex flex-row justify-content-center p-1">
+        <div>
+            <select name="UserId" class="form-control" required>
+                <option disabled hidden selected>Change Asignee for task with:</option>
+                @foreach (var user in ViewBag.Members)
+                {
+                    @if (user.Id != ViewBag.CurrentUser) {
+                    <option value="@user.Id">@user.FirstName @user.LastName</option>
+                }
+                }
+            </select>
+            @Html.ValidationMessage("UserId", null, new { @class = "text-danger"})
+
+        </div>
+
+        <div>
+            <input type="submit" class="btn btn-success alert-success" value="Choose New Asignee" />
+        </div>
+    </div>
+</form>

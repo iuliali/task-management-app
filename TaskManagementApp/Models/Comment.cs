@@ -8,7 +8,7 @@ namespace TaskManagementApp.Models
         public int Id { get; set; }
         public int? TaskId { get; set; }
         [Required(ErrorMessage = "Comment content is mandatory !")]
-        [StringLength(200, ErrorMessage = "Comment cannpt have more then 200 characters.")]
+        [StringLength(200, ErrorMessage = "Comment cannot have more then 200 characters.")]
         [MinLength(5, ErrorMessage = "Comment should have minimum 5 characters.")]
         public string? Content { get; set; }
         public string? UserId { get; set; }

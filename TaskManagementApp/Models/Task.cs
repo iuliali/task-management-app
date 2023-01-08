@@ -17,7 +17,8 @@ namespace TaskManagementApp.Models
         public DateTime? FinishedDate { get; set; }
 
         public string? status { get; set; }
-        [Required(ErrorMessage = "Task asignee is required")]
+
+        [Required]
         public string? UserId { get; set; }
         public int? ProjectId { get; set; }   
 

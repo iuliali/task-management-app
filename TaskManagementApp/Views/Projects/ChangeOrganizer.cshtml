@@ -1,0 +1,68 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+<h3>Change Organizer for Project : @ViewBag.Project.Name</h3>
+
+
+<div class="card-body alert alert-danger" > Warning ! Changing the organizer means choosing another teammember to be organizer.
+    When changed, the old organizer will get become a simple member into the team and will get all the tasks of new organizer </div>
+
+<h5 class="card-title alert-info py-3 px-3 rounded-2">
+    <a class="nav-link" href="/Users/Show/@ViewBag.Organizer.Id">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
+        </svg> Organizer : @ViewBag.Organizer.FirstName
+    </a>
+   
+</h5>
+
+<div>
+
+</div>
+
+<div class="container">
+    <div class="row">
+        @foreach (var member in ViewBag.MembersTeam)
+        {
+            <div class="card  col-6 mb-3">
+
+                <div class="card-body">
+
+                    <h5 class="card-title alert-success py-3 px-3 rounded-2">
+                        <a class="nav-link" href="/Users/Show/@member.ApplicationUser.Id">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
+                            </svg>  @member.ApplicationUser.FirstName
+                        </a>
+                    </h5>
+                    @if (@member.ApplicationUser.Tasks.Count > 0)
+                    {
+                        <ul> Has @member.ApplicationUser.Tasks.Count tasks :
+                            @foreach (var task in member.ApplicationUser.Tasks)
+                            {
+                                <li> @task.Name  
+                                    <button class="border rounded btn-outline-warning"> <a class="nav-link" href ="/Tasks/ChangeAsignee/@task.Id"> Change task asignee</a >
+
+                                    </button>
+
+                                </li>
+                            }
+                        </ul>
+                    }else {
+                                                <ul> Has no tasks !</ul>
+
+
+                    }
+
+
+                </div>
+            </div>
+            <br />
+            <br />
+        }
+    </div>
+</div>
