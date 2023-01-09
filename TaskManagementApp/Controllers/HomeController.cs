@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using TaskManagementApp.Data;
 using TaskManagementApp.Models;
 
 namespace TaskManagementApp.Controllers
@@ -8,14 +10,31 @@ namespace TaskManagementApp.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext db;
 
-        public HomeController(ILogger<HomeController> logger)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public HomeController(ILogger<HomeController> logger,
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager
+            )
         {
+            db = context;
+
+            _userManager = userManager;
+
+            _roleManager = roleManager;
             _logger = logger;
+
         }
+
 
         public IActionResult Index()
         {
+            SetAccessRights();
             return View();
         }
 
