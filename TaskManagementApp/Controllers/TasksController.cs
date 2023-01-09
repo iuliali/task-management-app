@@ -8,7 +8,7 @@ using Task = TaskManagementApp.Models.Task;
 
 namespace TaskManagementApp.Controllers
 {
-    [Authorize]
+    [Authorize(Roles ="Admin,User")]
 
     public class TasksController : Controller
     {
@@ -25,6 +25,8 @@ namespace TaskManagementApp.Controllers
             _userManager = userManager;
             _roleManager = roleManager;
         }
+
+        
         public IActionResult Index(int project_id)
         {
             SetAccessRights();
@@ -155,7 +157,7 @@ namespace TaskManagementApp.Controllers
 
                 db.Tasks.Remove(task);
                 db.SaveChanges();
-                SetTempDataMessage("The task has been deleted (with " + count + " comments) !", "alert-danger");
+                SetTempDataMessage("The task has been deleted (with " + count + " comments) !", "alert-success");
 
                 return Redirect("/Tasks/Index/" + task.ProjectId);
             }

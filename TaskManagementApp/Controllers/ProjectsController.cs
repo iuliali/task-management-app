@@ -388,6 +388,10 @@ namespace TaskManagementApp.Controllers
                     SetTempDataMessage("Project Organizer Changed !", "alert-success");
 
 
+                } else
+                {
+                    SetTempDataMessage("Please select a new organizer!", "alert-danger");
+                    return Redirect("/Projects/ChooseOrganizer/" + project.Id);
                 }
             } else
             {

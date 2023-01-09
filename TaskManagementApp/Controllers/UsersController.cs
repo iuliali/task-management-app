@@ -30,8 +30,20 @@ namespace ArticlesApp.Controllers
 
             _roleManager = roleManager;
         }
+
+        public IActionResult AdministrationPage()
+        {
+            //a link to projects
+            //a link to teams
+            //a link to users index page
+
+            return View();
+
+        }
         public IActionResult Index()
         {
+            SetAccessRights();
+
             var users = from user in db.Users
                         orderby user.UserName
                         select user;
@@ -43,6 +55,8 @@ namespace ArticlesApp.Controllers
 
         public async Task<ActionResult> Show(string id)
         {
+            SetAccessRights();
+
             ApplicationUser user = db.Users.Find(id);
             var roles = await _userManager.GetRolesAsync(user);
 
@@ -53,6 +67,8 @@ namespace ArticlesApp.Controllers
 
         public async Task<ActionResult> Edit(string id)
         {
+            SetAccessRights();
+
             ApplicationUser user = db.Users.Find(id);
 
             user.AllRoles = GetAllRoles();
@@ -72,6 +88,8 @@ namespace ArticlesApp.Controllers
         [HttpPost]
         public async Task<ActionResult> Edit(string id, ApplicationUser newData, [FromForm] string newRole)
         {
+            SetAccessRights();
+
             ApplicationUser user = db.Users.Find(id);
 
             user.AllRoles = GetAllRoles();
@@ -108,7 +126,7 @@ namespace ArticlesApp.Controllers
         [HttpPost]
         public IActionResult Delete(string id)
         {
-
+            SetAccessRights();
             var user = db.Users.Find(id);
             // Delete user Objects
 
@@ -129,9 +147,13 @@ namespace ArticlesApp.Controllers
             db.Teams.RemoveRange(teams);
 
             //delete projects
-            /*var tasks_proj = db.Tasks.Where(t => t.Project.UserId == user.Id).ToList();
-            db.Tasks.Remove(tasks_proj)*/;
+            
             var projects = db.Projects.Include("Tasks").Where(p=>p.UserId == user.Id);
+            foreach (var project in projects)
+            {
+                var tasks_proj = db.Tasks.Where(t => t.ProjectId == project.Id).ToList();
+                db.Tasks.RemoveRange(tasks_proj);
+            }
 
             db.Projects.RemoveRange(projects);
 
@@ -143,6 +165,13 @@ namespace ArticlesApp.Controllers
             return RedirectToAction("Index");
         }
 
+        [NonAction]
+        private void SetAccessRights()
+        {
+            ViewBag.IsAdmin = User.IsInRole("Admin");
+
+            ViewBag.CurrentUser = _userManager.GetUserId(User);
+        }
 
         [NonAction]
         public IEnumerable<SelectListItem> GetAllRoles()
