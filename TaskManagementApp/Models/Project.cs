@@ -16,7 +16,7 @@ namespace TaskManagementApp.Models
         public string? Name { get; set; }
 
         [Required(ErrorMessage = "Project Description is mandatory!")]
-        [MinLength(20, ErrorMessage = "Project Name must have at least 5 characters.")]
+        [MinLength(10, ErrorMessage = "Project Description must have at least 10 characters.")]
 
 
         public string? Description { get; set; }
