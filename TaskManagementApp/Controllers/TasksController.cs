@@ -122,6 +122,7 @@ namespace TaskManagementApp.Controllers
                 db.SaveChanges();
 
                 SetTempDataMessage("Comment has been added", "alert-success");
+                ViewBag.Organizer = GetProjectOrganizerByProjectId(ViewBag.TaskShow.ProjectId);
 
                 return Redirect("/Tasks/Show/" + id);
 
@@ -246,6 +247,9 @@ namespace TaskManagementApp.Controllers
                 SetTempDataMessage("Task cannot be found!!", "alert-danger");
                 return View("Error2");
             }
+
+            ViewBag.Organizer = GetProjectOrganizerByProjectId(task.ProjectId);
+
 
             if (!ViewBag.IsAdmin)
             {

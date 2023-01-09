@@ -49,6 +49,17 @@
 
     </div>
 }
+
+@if (ViewBag.Organizer.Id == ViewBag.CurrentUser || ViewBag.IsAdmin)
+{
+    <div>
+                    <button class="border rounded btn btn-warning" style="width: 10rem;">
+        <a class="nav-link" href="/Tasks/ChangeAsignee/@ViewBag.TaskShow.Id"> Change task asignee</a>
+
+    </button>
+    </div>
+}
+
         <br />
         <br />
 </div>

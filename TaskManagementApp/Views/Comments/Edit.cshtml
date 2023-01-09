@@ -4,7 +4,7 @@
 <h2>Edit comment </h2>
 <br />
 
-
+<div class="bkg-one-comment p-3 border rounded">
 @using (Html.BeginForm(controllerName: "Comments", actionName: "Edit",
        method: FormMethod.Post, routeValues: new { id = Model.Id }))
 
@@ -25,3 +25,4 @@
 
 }
 
+</div>
