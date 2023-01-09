@@ -108,10 +108,37 @@ namespace ArticlesApp.Controllers
         [HttpPost]
         public IActionResult Delete(string id)
         {
-            
 
+            var user = db.Users.Find(id);
             // Delete user Objects
-            
+
+            //delete comments
+            var comments = db.Comments.Where(c => c.UserId == user.Id).ToList();
+            db.Comments.RemoveRange(comments);
+            //delete tasks
+
+            var tasks = db.Tasks.Where(t => t.UserId == user.Id).ToList();
+            db.Tasks.RemoveRange(tasks);
+
+            //delete teammember
+            var teammembers = db.TeamMembers.Where(t => t.ApplicationUserId == user.Id).ToList();
+            db.TeamMembers.RemoveRange(teammembers);
+
+            //delete teams if organizer 
+            var teams = db.Teams.Include("Project").Where(t => t.Project.UserId == user.Id);
+            db.Teams.RemoveRange(teams);
+
+            //delete projects
+            /*var tasks_proj = db.Tasks.Where(t => t.Project.UserId == user.Id).ToList();
+            db.Tasks.Remove(tasks_proj)*/;
+            var projects = db.Projects.Include("Tasks").Where(p=>p.UserId == user.Id);
+
+            db.Projects.RemoveRange(projects);
+
+            //delete user
+            db.Users.Remove(user);
+            db.SaveChanges();
+
 
             return RedirectToAction("Index");
         }
@@ -135,6 +162,16 @@ namespace ArticlesApp.Controllers
             }
             return selectList;
         }
+
+        [NonAction]
+        public void SetTempDataMessage(string message, string style)
+        {
+            TempData["Message"] = message;
+            TempData["MessageStyle"] = style;
+
+
+        }
+
     }
 }
 

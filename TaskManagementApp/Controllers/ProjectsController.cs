@@ -44,9 +44,16 @@ namespace TaskManagementApp.Controllers
             else
             {
 
-
-                var projects = db.Projects.Include("User").Include(p => p.Team.TeamMembers
-                            .Where(tm => tm.ApplicationUserId == _userManager.GetUserId(User))).ToList();
+                var projects = new List<Project>();
+                var all_projects = db.Projects.Include("Team").Include("User").ToList();
+                foreach (var proj in all_projects)
+                {
+                    if(proj.UserId == _userManager.GetUserId(User) ||
+                        (proj.Team is not null && CheckTeamMember(_userManager.GetUserId(User), proj.Team.Id)))
+                    {
+                        projects.Add(proj);
+                    }
+                }
                 ViewBag.Projects = projects;
 
 
