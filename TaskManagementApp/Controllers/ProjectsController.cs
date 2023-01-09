@@ -33,8 +33,33 @@ namespace TaskManagementApp.Controllers
         public IActionResult Index()
         {
             SetAccessRights();
-            var projects = db.Projects.Include("User");
-            ViewBag.Projects = projects;
+            
+            
+            if(User.IsInRole("Admin"))
+            {
+                var projects = db.Projects.Include("User").ToList();
+                ViewBag.Projects = projects;
+
+            }
+            else
+            {
+
+
+                var projects = db.Projects.Include("User").Include(p => p.Team.TeamMembers
+                            .Where(tm => tm.ApplicationUserId == _userManager.GetUserId(User))).ToList();
+                ViewBag.Projects = projects;
+
+
+            }
+
+            if(ViewBag.Projects.Count == 0)
+            {
+                SetTempDataMessage("No project found!", "alert-danger");
+
+            }
+
+
+
 
 
             return View();
@@ -278,13 +303,103 @@ namespace TaskManagementApp.Controllers
             //afiseaza membrii echipei fiecare cu taskurile lor
             if (team is not null)
             {
+                var members = db.TeamMembers.Include(t=> t.ApplicationUser)
+                                               .Include(t => t.ApplicationUser.Tasks.Where(tsk=> tsk.ProjectId == project.Id))
+                                               .Where(tm => tm.TeamId == team.Id).ToList();
+                                               
+                ViewBag.MembersTeam = members;
+            }
+            else
+            {
+               // ViewBag.MembersTeam = new List<TeamMember>();
+                SetTempDataMessage("First add a team for the project, then you can choose one member to be the organizer!", "alert-danger");
+                return Redirect("/Projects/Show/" + project.Id);
+
+
+            }
+            return View();
+
+
+
+
+        }
+
+        [Authorize(Roles = "Admin")]
+
+        [HttpPost]
+        public IActionResult ChangeOrganizer(int? id, [FromForm] Project req_project)
+        {
+            SetAccessRights();
+
+            var project = db.Projects.Where(t => t.Id == id).FirstOrDefault();
+            ViewBag.Project = project;
+            if (project is null)
+            {
+                SetTempDataMessage("Project not found!", "alert-danger");
+                return View("Error2");
+            }
+
+            if(ViewBag.IsAdmin)
+            {
+
+            } else
+            {
+                SetTempDataMessage("Project not found!", "alert-danger");
+                return View("Error2");
+            }
+
+            var team = db.Teams.Where(t => t.ProjectId == id).FirstOrDefault();
+            ViewBag.Team = team;
+
+            var organizer = GetProjectOrganizerByProjectId(id);
+            ViewBag.Organizer = organizer;
+
+            if (team is not null) {
+                if (ModelState.IsValid) {
+                    var organizer_tasks = db.Tasks.Where(tsk => tsk.ProjectId == project.Id).Where(tsk => tsk.UserId == organizer.Id).ToList();
+                    if (organizer_tasks.Any())
+                    {
+                        for (int i = 0; i < organizer_tasks.Count; i++)
+                        {
+                            organizer_tasks[i].UserId = req_project.UserId;
+                        }
+                    }
+                    //creez un nou memebru -> vechiul organiztaor
+                    TeamMember member = new TeamMember();
+                    member.ApplicationUserId = organizer.Id;
+                    member.TeamId = team.Id;
+                    db.TeamMembers.Add(member);
+
+                    //setez noul organizator
+                    project.UserId = req_project.UserId;
+
+                    var old_member = db.TeamMembers.Where(t => t.TeamId == team.Id).Where(t => t.ApplicationUserId == req_project.UserId).FirstOrDefault();
+                    db.TeamMembers.Remove(old_member);
+                    organizer = GetProjectOrganizerByProjectId(id);
+                    ViewBag.Organizer = organizer;
+                    db.SaveChanges();
+                    SetTempDataMessage("Project Organizer Changed !", "alert-success");
+
+
+                }
+            } else
+            {
+                //team is null
+                SetTempDataMessage("First add a team for the project!", "alert-danger");
+                return Redirect("/Projects/Show/" + project.Id);
+
+            }
+
+            //afiseaza membrii echipei fiecare cu taskurile lor
+            if (team is not null)
+            {
                 var members = db.TeamMembers.Include("ApplicationUser")
-                                               .Include("ApplicationUser.Tasks")
-                                               .Where(tm => tm.TeamId == team.Id)
+                                               .Include(t => t.ApplicationUser.Tasks.Where(tsk => tsk.ProjectId == project.Id))
+                                               .Where(tm => tm.TeamId == team.Id).ToList()
                                                ;
                 ViewBag.MembersTeam = members;
             }
-            return View();
+            return View(req_project);
 
 
 

@@ -21,6 +21,42 @@
 </h5>
 
 <div>
+    @if (ViewBag.MembersTeam.Count > 0)
+    {
+        <form method="POST" action="/Projects/ChangeOrganizer/@ViewBag.Project.Id">
+            <input type="hidden" name="Id" value="@ViewBag.Project.Id" />
+
+            <input type="hidden" name="Id" value="@ViewBag.Project.Id" />
+            <input type="hidden" name="Name" value="@ViewBag.Project.Name" />
+            <input type="hidden" name="Description" value="@ViewBag.Project.Description" />
+            <input type="hidden" name="CreatedDate" value="@ViewBag.Project.CreatedDate" />
+            <input type="hidden" name="FinishedDate" value="@ViewBag.Project.FinishedDate" />
+
+
+            <div class="d-flex flex-row justify-content-center p-1">
+                <div>
+                    <select name="UserId" class="form-control" required>
+                        <option disabled hidden selected>Change New Organizer for Project:</option>
+                        @foreach (var member in ViewBag.MembersTeam)
+                        {
+
+                            <option value="@member.ApplicationUserId">@member.ApplicationUser.FirstName @member.ApplicationUser.LastName</option>
+
+                        }
+                    </select>
+                @Html.ValidationMessage("UserId", null, new { @class = "text-danger"})
+
+            </div>
+
+            <div>
+                <input type="submit" class="btn btn-success alert-success" value="Choose New Organizer" />
+            </div>
+        </div>
+    </form>
+    } else {
+        <h3 class="alert alert-warning"> In order to Change the Organizer the Team should have first some members !</h3>
+        <button class="btn btn-outline-info"> <a class="nav-link" href="/Projects/Show/@ViewBag.Project.Id"> Add Members To the Project Team </a></button>
+    }
 
 </div>
 

@@ -19,7 +19,7 @@
                 <option disabled hidden selected>Change Asignee for task with:</option>
                 @foreach (var user in ViewBag.Members)
                 {
-                    @if (user.Id != ViewBag.CurrentUser) {
+                    @if (user.Id != ViewBag.Organizer.Id) {
                     <option value="@user.Id">@user.FirstName @user.LastName</option>
                 }
                 }

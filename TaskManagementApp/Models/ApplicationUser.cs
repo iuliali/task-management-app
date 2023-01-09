@@ -13,5 +13,9 @@ namespace TaskManagementApp.Models
         public string? LastName { get; set; }
         public virtual ICollection<TeamMember>? TeamMembers { get; set; }
         public virtual ICollection<Task>? Tasks { get; set; }
+        public virtual ICollection<Project>? Projects { get; set; }
+
+        [NotMapped]
+        public IEnumerable<SelectListItem>? AllRoles { get; set; }
     }
 }
