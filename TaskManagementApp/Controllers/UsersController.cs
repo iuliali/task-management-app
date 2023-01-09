@@ -38,7 +38,6 @@ namespace ArticlesApp.Controllers
             //a link to users index page
 
             return View();
-
         }
         public IActionResult Index()
         {
