@@ -1,58 +1,53 @@
 ﻿@model TaskManagementApp.Models.ApplicationUser
 
 
+<div class="form-group" style="width:30rem" >
 
 @using (Html.BeginForm(actionName: "Edit", controllerName: "Users",
         method: FormMethod.Post, routeValues: new { id = @Model.Id }))
 {
 
-    <i class="bi bi-person"></i>
-    @Html.Label("UserName", "User Name", new { @class = "" })
+    @Html.Label("UserName", "User Name")
 
     <br />
 
-    @Html.EditorFor(m => m.UserName)
+        @Html.EditorFor(m => m.UserName ,  new {htmlAttributes=  new { @class = "form-control" , placeholder = "User Name" }})
 
     <br />
 
-    <i class="bi bi-envelope"></i>
-    @Html.Label("Email", "Email User", new { @class = "" })
+    @Html.Label("Email", "Email User")
 
     <br />
 
-    @Html.EditorFor(m => m.Email)
+        @Html.EditorFor(m => m.Email , new {htmlAttributes=  new { @class = "form-control" , placeholder = "Email" }})
 
     <br />
 
-    <i class="bi bi-phone"></i>
     @Html.Label("PhoneNumber", "Phone Number")
 
     <br />
 
-    @Html.EditorFor(m => m.PhoneNumber)
+        @Html.EditorFor(m => m.PhoneNumber ,  new {htmlAttributes=  new { @class = "form-control" , placeholder = "Phone Number" }});
 
     <br />
 
-    <i class="bi bi-person"></i>
-    @Html.Label("FirstName", "First Name", new { @class = "" })
+    @Html.Label("FirstName", "First Name")
 
     <br />
 
-    @Html.EditorFor(m => m.FirstName)
+        @Html.EditorFor(m => m.FirstName , new {htmlAttributes=  new { @class = "form-control" , placeholder = "First Name" }});
 
     <br />
 
-    <i class="bi bi-person"></i>
-    @Html.Label("LastName", "Last Name", new { @class = "" })
+    @Html.Label("LastName", "Last Name")
 
     <br />
 
-    @Html.EditorFor(m => m.LastName)
+        @Html.EditorFor(m => m.LastName , new {htmlAttributes=  new { @class = "form-control" , placeholder = "Last Name" }})
 
     <br />
 
-    <i class="bi bi-card-list"></i>
-    <label>Selectati rolul</label>
+    <label>Select New Role</label>
     @Html.DropDownList("newRole", new SelectList(Model.AllRoles, "Value", "Text", ViewBag.UserRole), null, new { @class = "form-control" })
 
     <br />
@@ -60,5 +55,6 @@
     <button class="btn btn-sm btn-success" type="submit">Edit user</button>
 
 
-}
+    }
+</div>
 
