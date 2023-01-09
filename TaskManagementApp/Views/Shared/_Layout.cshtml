@@ -29,7 +29,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Tasks" asp-action="MyTasks">My Tasks</a>
                         </li>
-                        @if(ViewBag.IsAdmin) {
+                        @if(ViewBag.IsAdmin != null && ViewBag.IsAdmin) {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Administration Page">Administration Page</a>
                             </li>
