@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Ganss.Xss;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -102,6 +103,9 @@ namespace TaskManagementApp.Controllers
             ViewBag.TaskShow = task;
             var team_id = GetTeamIdByProjectId((int)task.ProjectId);
 
+            // summernote
+            var sanitizer = new HtmlSanitizer();
+
             if (!CheckTeamMember(_userManager.GetUserId(User), team_id) && !ViewBag.IsAdmin && _userManager.GetUserId(User) != organizer.Id)
             {
                 SetTempDataMessage("You don't have rights to see the task!", "alert-danger");
@@ -112,6 +116,8 @@ namespace TaskManagementApp.Controllers
 
             if (ModelState.IsValid)
             {
+                comment.Content = sanitizer.Sanitize(comment.Content);
+                
                 db.Comments.Add(comment);
                 db.SaveChanges();
 
@@ -119,7 +125,8 @@ namespace TaskManagementApp.Controllers
 
                 return Redirect("/Tasks/Show/" + id);
 
-            } else
+            } 
+            else
             {
                 SetTempDataMessage("Comment could not have been added !", "alert-danger");
                 SetAccessRights();

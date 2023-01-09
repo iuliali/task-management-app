@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Ganss.Xss;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementApp.Data;
@@ -51,13 +52,17 @@ namespace TaskManagementApp.Controllers
         {
             SetAccessRights();
             Comment comm = db.Comments.Where(c => c.Id == id).First();
-
+            
+            var sanitizer = new HtmlSanitizer();
+            
             // trebuie verificate drepturi de edit
             if (_userManager.GetUserId(User) == comm.UserId || ViewBag.IsAdmin)
             { //can edit the comment
                 if (ModelState.IsValid)
                 {
+                    requestComm.Content = sanitizer.Sanitize(requestComm.Content);
                     comm.Content = requestComm.Content;
+
 
                     db.SaveChanges();
 

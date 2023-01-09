@@ -87,7 +87,7 @@
                             <input type="hidden" name="TaskId" value="@ViewBag.TaskShow.Id" />
 
                             <br />
-                            @Html.TextArea("Content", null, new { @class = "form-control" })
+                            @Html.TextArea("Content", null, new { @class = "summernote" })
                             @Html.ValidationMessage("Content", null, new { @class = "text-danger"})
 
                             <br />
@@ -115,7 +115,7 @@
         <div class="row bkg-one-comment bkg-one-comment">
          <div class="d-flex flex-row "> 
         <div class="card-body">
-            <div class="card-text ">@comm.Content</div>
+            <div class="card-text ">@Html.Raw(comm.Content)</div>
             <div>By : @comm.User.FirstName at @comm.CreatedAt</div>
         </div>
             <div>

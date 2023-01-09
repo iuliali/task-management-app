@@ -110,3 +110,9 @@ a.nav-link {
 body {
     background-color:cadetblue !important;
 }
+
+
+/*summernote*/
+.note-editor .dropdown-toggle::after {
+    display: none;
+}

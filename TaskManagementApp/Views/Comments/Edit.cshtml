@@ -1,4 +1,4 @@
-﻿
+﻿@model TaskManagementApp.Models.Comment
 
 
 <h2>Edit comment </h2>
@@ -13,7 +13,8 @@
 
     <br />
 
-    @Html.Editor("Content", new { @class = "form-control" })
+    /*@Html.Editor("Content", new { @class = "form-control" })*/
+    @Html.TextArea("Content", Model.Content, new { @class = "form-control summernote" })
     <br />
 
     @Html.ValidationMessage("Content", null, new { @class = "text-danger" })
