@@ -38,14 +38,64 @@ namespace TaskManagementApp.Controllers
             if(User.IsInRole("Admin"))
             {
                 var projects = db.Projects.Include("User").ToList();
-                ViewBag.Projects = projects;
+
+                int _perPage = 5;
+
+                int totalItems = projects.Count();
+
+                //pag curenta din view ul asociat
+                //nr pg = val param page din ruta
+                var currentPage = Convert.ToInt32(HttpContext.Request.Query["page"]);
+
+                //pt prima pg offset 0
+                //pt pg 2 offset 3
+                //offset = nr de proiecte care au fost deja afisate pe pg anterioare
+                var offset = 0;
+                if (!currentPage.Equals(0))
+                {
+                    offset = (currentPage - 1) * _perPage;
+                }
+
+                var paginatedProjects = projects.Skip(offset).Take(_perPage);
+
+                //nr ultimei pg
+                ViewBag.lastPage = Math.Ceiling((float)totalItems / (float)_perPage);
+
+
+                //ViewBag.Projects = projects;
+
+
+                ViewBag.Projects = paginatedProjects;
+                ViewBag.Projectss = projects;
 
             }
             else
             {
+                int _perPage = 5;
 
                 var projects = new List<Project>();
                 var all_projects = db.Projects.Include("Team").Include("User").ToList();
+
+                int totalItems = projects.Count();
+
+                //pag curenta din view ul asociat
+                //nr pg = val param page din ruta
+                var currentPage = Convert.ToInt32(HttpContext.Request.Query["page"]);
+
+                //pt prima pg offset 0
+                //pt pg 2 offset 3
+                //offset = nr de proiecte care au fost deja afisate pe pg anterioare
+                var offset = 0;
+                if (!currentPage.Equals(0))
+                {
+                    offset = (currentPage - 1) * _perPage;
+                }
+
+                var paginatedProjects = projects.Skip(offset).Take(_perPage);
+
+                //nr ultimei pg
+                ViewBag.lastPage = Math.Ceiling((float)totalItems / (float)_perPage);
+
                 foreach (var proj in all_projects)
                 {
                     if(proj.UserId == _userManager.GetUserId(User) ||
@@ -54,16 +104,21 @@ namespace TaskManagementApp.Controllers
                         projects.Add(proj);
                     }
                 }
-                ViewBag.Projects = projects;
+
+
+                ViewBag.Projectss = projects;
+                ViewBag.Projects = paginatedProjects;
 
 
             }
 
-            if(ViewBag.Projects.Count == 0)
+            if(ViewBag.Projectss.Count == 0)
             {
                 SetTempDataMessage("No project found!", "alert-danger");
 
             }
+
+            ViewBag.PaginationBaseUrl = "/Projects/Index/?page";
 
 
 

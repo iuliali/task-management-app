@@ -49,10 +49,10 @@ namespace TaskManagementApp.Controllers
             }
 
             if (!CheckTeamMember(_userManager.GetUserId(User), team.Id) && !ViewBag.IsAdmin && 
-                GetProjectOrganizerByProjectId(team.Project.Id) != ViewBag.CurrentUser)
+                GetProjectOrganizerByProjectId(team.Project.Id).Id != ViewBag.CurrentUser)
             {
                 //should not have access to see the team page 
-                SetTempDataMessage("You do't have rights to access team page", "alert-danger");
+                SetTempDataMessage("You don't have rights to access team page!", "alert-danger");
                 return View("Error2");
 
             }
