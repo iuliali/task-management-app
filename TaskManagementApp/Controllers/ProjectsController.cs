@@ -472,10 +472,16 @@ namespace TaskManagementApp.Controllers
 
             if (team is not null) {
                 if (ModelState.IsValid) {
-                    var organizer_tasks = db.Tasks.Where(tsk => tsk.ProjectId == project.Id).Where(tsk => tsk.UserId == organizer.Id);
+                    var organizer_tasks = db.Tasks.Include("Comments").Where(tsk => tsk.ProjectId == project.Id).Where(tsk => tsk.UserId == organizer.Id);
                     if (organizer_tasks.Any())
                     {
-                        
+                        foreach(var task in organizer_tasks)
+                        {
+                            foreach(var comm in task.Comments)
+                            {
+                                db.Comments.Remove(comm);
+                            }
+                        }
                         db.RemoveRange(organizer_tasks);
                     }
                     //creez un nou memebru -> vechiul organiztaor
