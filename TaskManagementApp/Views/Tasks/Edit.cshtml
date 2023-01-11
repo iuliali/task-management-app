@@ -7,15 +7,22 @@
     </h2>
 }
 
-<h2>Edit task -> Update status</h2>
+<h2>Edit task</h2>
 <br />
+@*<p>You can edit task name and task status</p>*@
 
 
 @using (Html.BeginForm(controllerName: "Tasks", actionName: "Edit",
       method: FormMethod.Post, routeValues: new { id = Model.Id }))
 
 {
-    @Html.HiddenFor(t => t.Name, new{Value = ViewBag.TaskToEdit.Name});
+    @Html.Label("Name", "Task Name")
+    <br />
+    @Html.Editor("Name", new { @class = "form-control" })
+    <br />
+    @Html.ValidationMessage("Name", null, new { @class = "text-danger" })
+    <br />
+    //@Html.HiddenFor(t => t.Name, new{Value = ViewBag.TaskToEdit.Name});
     @Html.HiddenFor(t => t.UserId, new{Value = ViewBag.TaskToEdit.UserId});
     @Html.HiddenFor(t => t.Description, new{Value = ViewBag.TaskToEdit.Description});
     @Html.Label("status", "Status")
