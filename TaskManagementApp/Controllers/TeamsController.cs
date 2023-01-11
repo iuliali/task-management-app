@@ -7,7 +7,7 @@ using TaskManagementApp.Models;
 
 namespace TaskManagementApp.Controllers
 {
-    [Authorize]
+    [Authorize(Roles="Admin, User")]
     public class TeamsController : Controller
     {
         private readonly ApplicationDbContext db;
@@ -27,7 +27,7 @@ namespace TaskManagementApp.Controllers
         public IActionResult Index()
         {
             SetAccessRights();
-            var teams = db.Teams;
+            var teams = db.Teams.Include(t=>t.TeamMembers).ToList();
             ViewBag.Teams = teams;
 
             return View();
@@ -93,13 +93,15 @@ namespace TaskManagementApp.Controllers
 
             foreach(var task in tasks)
             {
-                var comments = db.Comments.Where(t => t.TaskId == id).ToList();
+
+                var comments = db.Comments.Where(c => c.TaskId == task.Id).ToList();
 
                 foreach (var comment in comments)
                 {
                     db.Comments.Remove(comment);
                 }
                 db.Tasks.Remove(task);
+
 
             }
 

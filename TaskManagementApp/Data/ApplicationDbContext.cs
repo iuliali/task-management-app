@@ -35,7 +35,7 @@ namespace TaskManagementApp.Data
             modelBuilder.Entity<Task>().Property(m => m.UserId).IsRequired(true);
 
 
-
+            
 
             modelBuilder.Entity<Team>()
             .HasOne<Project>(t => t.Project)

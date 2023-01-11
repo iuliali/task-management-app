@@ -33,6 +33,8 @@ namespace ArticlesApp.Controllers
 
         public IActionResult AdministrationPage()
         {
+            SetAccessRights();
+
             //a link to projects
             //a link to teams
             //a link to users index page
@@ -135,7 +137,22 @@ namespace ArticlesApp.Controllers
             //delete tasks
 
             var tasks = db.Tasks.Where(t => t.UserId == user.Id).ToList();
-            db.Tasks.RemoveRange(tasks);
+
+            foreach (var task in tasks)
+            {
+
+                var comms = db.Comments.Where(c => c.TaskId == task.Id).ToList();
+
+                foreach (var comment in comms)
+                {
+                    db.Comments.Remove(comment);
+                }
+                db.Tasks.Remove(task);
+
+
+            }
+
+            //db.Tasks.RemoveRange(tasks);
 
             //delete teammember
             var teammembers = db.TeamMembers.Where(t => t.ApplicationUserId == user.Id).ToList();

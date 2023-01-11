@@ -401,12 +401,9 @@ namespace TaskManagementApp.Controllers
                 return View("Error2");
             }
 
-            if(ViewBag.IsAdmin)
+            if(!ViewBag.IsAdmin)
             {
-
-            } else
-            {
-                SetTempDataMessage("Project not found!", "alert-danger");
+                SetTempDataMessage("You don't have rights to change organizer!", "alert-danger");
                 return View("Error2");
             }
 
@@ -418,12 +415,13 @@ namespace TaskManagementApp.Controllers
 
             if (team is not null) {
                 if (ModelState.IsValid) {
-                    var organizer_tasks = db.Tasks.Where(tsk => tsk.ProjectId == project.Id).Where(tsk => tsk.UserId == organizer.Id).ToList();
+                    var organizer_tasks = db.Tasks.Where(tsk => tsk.ProjectId == project.Id).Where(tsk => tsk.UserId == organizer.Id);
                     if (organizer_tasks.Any())
                     {
-                        for (int i = 0; i < organizer_tasks.Count; i++)
+                        
+                        foreach(var task in organizer_tasks)
                         {
-                            organizer_tasks[i].UserId = req_project.UserId;
+                            task.UserId = req_project.UserId;
                         }
                     }
                     //creez un nou memebru -> vechiul organiztaor
