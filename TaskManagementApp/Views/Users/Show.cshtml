@@ -24,7 +24,7 @@
 
         <div class="d-flex flex-row justify-content-between p-3">
 
-            @if ((string)Model.Id != ViewBag.CurentUser)
+            @if ((string)Model.Id != ViewBag.CurrentUser)
             {
                 @using (Html.BeginForm(actionName: "Delete", controllerName: "Users", method: FormMethod.Post, routeValues: new { id = @Model.Id }))
                 {

@@ -444,14 +444,14 @@ namespace TaskManagementApp.Controllers
                     ViewBag.Organizer = organizer;
                     db.SaveChanges();
                     SetTempDataMessage("Project Organizer Changed !", "alert-success");
-                    return Redirect("/Projects/ChooseOrganizer/" + project.Id);
+                    return Redirect("/Projects/ChangeOrganizer/" + project.Id);
 
 
                 }
                 else
                 {
                     SetTempDataMessage("Please select a new organizer!", "alert-danger");
-                    return Redirect("/Projects/ChooseOrganizer/" + project.Id);
+                    return Redirect("/Projects/ChangeOrganizer/" + project.Id);
                 }
             } else
             {

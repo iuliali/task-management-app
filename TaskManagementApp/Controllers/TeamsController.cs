@@ -105,10 +105,16 @@ namespace TaskManagementApp.Controllers
 
             }
 
+            var members = db.TeamMembers.Include("ApplicationUser").Where(m => m.TeamId == id).ToList(); ;
+            ViewBag.Team = team;
+
+            ViewBag.MembersTeam = members;
+            ViewBag.Organizer = GetProjectOrganizerByProjectId(team.ProjectId);
+
             db.TeamMembers.Remove(member);
             db.SaveChanges();
 
-            return View("Show");
+            return Redirect("/Teams/Show/"+ team.Id);
 
 
         }
