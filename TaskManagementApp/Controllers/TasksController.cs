@@ -209,19 +209,22 @@ namespace TaskManagementApp.Controllers
                 {
                     // another checks needed -> what happens if task has been already completed?! can be reopened?!!!!
                     task.status = requestTask.status;
+
+                    task.Name = requestTask.Name;
+
                     if(task.status == "Completed")
                     {
                         task.FinishedDate = DateTime.Now;
                     }
                     db.SaveChanges();
-                    SetTempDataMessage("Status Updated!", "alert-success");
+                    SetTempDataMessage("Task Updated!", "alert-success");
 
                     return Redirect("/Tasks/Show/" + id);
                 }
                 else
                 {
                     //add unsuccessfull  message
-                    SetTempDataMessage("Couldn't edit status !", "alert-danger");
+                    SetTempDataMessage("Couldn't edit task!", "alert-danger");
 
                     ViewBag.TaskToEdit = task;
                     return View(requestTask);
