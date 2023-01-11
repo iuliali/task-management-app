@@ -108,7 +108,7 @@
                 <div class="d-flex flex-column">
                     <br />
                     <br />
-                    @if (ViewBag.Organizer.Id == ViewBag.CurrentUser || ViewBag.IsAdmin)
+                    @if ( ViewBag.IsAdmin)
                     {
                         <div>
                             <form method="post" action="/Projects/Delete/@ViewBag.Project.Id">
