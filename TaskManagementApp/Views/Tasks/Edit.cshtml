@@ -19,8 +19,8 @@
     @Html.Label("Name", "Task Name")
     <br />
     @Html.Editor("Name", new { @class = "form-control" })
-    <br />
     @Html.ValidationMessage("Name", null, new { @class = "text-danger" })
+    <br />
     <br />
     //@Html.HiddenFor(t => t.Name, new{Value = ViewBag.TaskToEdit.Name});
     @Html.HiddenFor(t => t.UserId, new{Value = ViewBag.TaskToEdit.UserId});
