@@ -300,7 +300,7 @@ namespace TaskManagementApp.Controllers
         public IActionResult Delete(int id)
         {
             SetAccessRights();
-            var project = db.Projects.SingleOrDefault(x => x.Id == id);
+            var project = db.Projects.FirstOrDefault(x => x.Id == id);
             var team = db.Teams.Where(t => t.ProjectId == project.Id).FirstOrDefault();
 
             if (ViewBag.IsAdmin) {//double check
@@ -419,10 +419,7 @@ namespace TaskManagementApp.Controllers
                     if (organizer_tasks.Any())
                     {
                         
-                        foreach(var task in organizer_tasks)
-                        {
-                            task.UserId = req_project.UserId;
-                        }
+                        db.RemoveRange(organizer_tasks);
                     }
                     //creez un nou memebru -> vechiul organiztaor
                     TeamMember member = new TeamMember();
@@ -433,15 +430,25 @@ namespace TaskManagementApp.Controllers
                     //setez noul organizator
                     project.UserId = req_project.UserId;
 
+                    //sterg noul org ca membru 
                     var old_member = db.TeamMembers.Where(t => t.TeamId == team.Id).Where(t => t.ApplicationUserId == req_project.UserId).FirstOrDefault();
                     db.TeamMembers.Remove(old_member);
+
+                    var members = db.TeamMembers.Include(t => t.ApplicationUser)
+                                               .Include(t => t.ApplicationUser.Tasks.Where(tsk => tsk.ProjectId == project.Id))
+                                               .Where(tm => tm.TeamId == team.Id).ToList();
+
+                    ViewBag.MembersTeam = members;
+
                     organizer = GetProjectOrganizerByProjectId(id);
                     ViewBag.Organizer = organizer;
                     db.SaveChanges();
                     SetTempDataMessage("Project Organizer Changed !", "alert-success");
+                    return Redirect("/Projects/ChooseOrganizer/" + project.Id);
 
 
-                } else
+                }
+                else
                 {
                     SetTempDataMessage("Please select a new organizer!", "alert-danger");
                     return Redirect("/Projects/ChooseOrganizer/" + project.Id);

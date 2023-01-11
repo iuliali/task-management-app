@@ -21,22 +21,26 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Projects" asp-action="Index">My projects</a>
-                        </li>
+                        @if (ViewBag.CurrentUser != null)
+                        {
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Projects" asp-action="New">Add a new project</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Tasks" asp-action="MyTasks">My Tasks</a>
-                        </li>
-                        @if(ViewBag.IsAdmin != null && ViewBag.IsAdmin) {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="AdministrationPage">Administration Page</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Projects" asp-action="Index">My projects</a>
                             </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Projects" asp-action="New">Add a new project</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Tasks" asp-action="MyTasks">My Tasks</a>
+                            </li>
+                            @if (ViewBag.IsAdmin != null && ViewBag.IsAdmin)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="AdministrationPage">Administration Page</a>
+                                </li>
+                            }
                         }
-                        
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

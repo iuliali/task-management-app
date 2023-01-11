@@ -5,13 +5,13 @@
 
     <div class="card-body d-flex justify-content-between flex-column">
         <div>
-            <p><i class="bi bi-person"> </i> UserName: @Model.UserName</p>
+            <p> UserName: @Model.UserName</p>
 
-            <p><i class="bi bi-envelope"></i> Email utilizator: @Model.Email</p>
+            <p> Email utilizator: @Model.Email</p>
 
             @if (ViewBag.Roles.Count > 0)
             {
-                <p><i class="bi bi-person"> </i> Roluri utilizator:</p>
+                <p> Roluri utilizator:</p>
                 @foreach (var role in ViewBag.Roles)
                 {
                     <span class="rounded-pill bg-dark mr-2 px-4 py-2 text-white">@role</span>
@@ -24,7 +24,7 @@
 
         <div class="d-flex flex-row justify-content-between p-3">
 
-            @if ((string)Model.Id != ViewBag.UserCurent)
+            @if ((string)Model.Id != ViewBag.CurentUser)
             {
                 @using (Html.BeginForm(actionName: "Delete", controllerName: "Users", method: FormMethod.Post, routeValues: new { id = @Model.Id }))
                 {
