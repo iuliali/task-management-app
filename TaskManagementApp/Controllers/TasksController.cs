@@ -51,7 +51,7 @@ namespace TaskManagementApp.Controllers
             var team = db.Teams.Where(t=>t.ProjectId == project_id ).FirstOrDefault();
             if (team is not null)
             {
-                if(CheckTeamMember(_userManager.GetUserId(User), team.Id)  || ViewBag.IsAdmin ||  _userManager.GetUserId(User) != organizer.Id)
+                if(CheckTeamMember(_userManager.GetUserId(User), team.Id)  || ViewBag.IsAdmin ||  _userManager.GetUserId(User) == organizer.Id)
                 {
                     //are drept
                     ViewBag.TasksProject = GetAllTasks((int)project_id);
