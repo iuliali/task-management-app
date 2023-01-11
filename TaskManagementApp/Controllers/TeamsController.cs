@@ -89,7 +89,7 @@ namespace TaskManagementApp.Controllers
 
             //first we have to check if the member had any tasks
             var team = db.Teams.FirstOrDefault(t => t.Id == member.TeamId);
-            var tasks = db.Tasks.Where(tsk => tsk.ProjectId == team.ProjectId);
+            var tasks = db.Tasks.Where(tsk => tsk.ProjectId == team.ProjectId).Where(t => t.UserId == member.ApplicationUserId);
 
             foreach(var task in tasks)
             {
@@ -103,6 +103,18 @@ namespace TaskManagementApp.Controllers
                 db.Tasks.Remove(task);
 
 
+            }
+
+            var tasks2 = db.Tasks.Include("Comments").Where(t => t.ProjectId == team.ProjectId);
+            foreach(var task in tasks2)
+            {
+                foreach(var comm in task.Comments)
+                {
+                    if(comm.UserId == member.ApplicationUserId)
+                    {
+                        db.Comments.Remove(comm);
+                    }
+                }
             }
 
             var members = db.TeamMembers.Include("ApplicationUser").Where(m => m.TeamId == id).ToList(); ;

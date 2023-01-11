@@ -136,7 +136,7 @@ namespace TaskManagementApp.Controllers
             
             var project = db.Projects.Include("Team")
               .Where(p => p.Id == id)
-              .First();
+              .FirstOrDefault();
             ViewBag.Project = project;
 
             if (project is null)
@@ -245,6 +245,9 @@ namespace TaskManagementApp.Controllers
 
             var users = db.Users.Where(u => u.Id == _userManager.GetUserId(User)).ToList();
             ViewBag.Users = users;
+            ViewBag.Project = project;
+            ViewBag.Tasks = new List<Task>();
+            ViewBag.Members = new List<TeamMember>();
 
             if (ModelState.IsValid)
             {
@@ -554,7 +557,7 @@ namespace TaskManagementApp.Controllers
                 db.SaveChanges();
 
                 SetTempDataMessage("Project successfully added", "alert-success");
-
+                ViewBag.Project = project;
                 return RedirectToAction("Show", "Projects", new { id = project.Id });
             }
             else
