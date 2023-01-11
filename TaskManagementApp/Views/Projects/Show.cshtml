@@ -10,7 +10,7 @@
     @Html.Raw("<div class='d-flex flex-row p-2 justify-content-between '>")
 
         <div>
-                            <h2>@ViewBag.Project.Name</h2>
+        <h2> <span class="project text-center border p-2 rounded">Project  </span>@ViewBag.Project.Name</h2>
 
                             <br />
                         <h5>Project description: @ViewBag.Project.Description</h5>
@@ -204,7 +204,7 @@
                 <div class="card">
                     <div class="card-body">
 
-                        <h3 class="card-title alert-success py-3 px-3 rounded-2">
+                        <h3 class="card-title task py-3 px-3 rounded-2">
                             <a class="nav-link text-dark" href="/Tasks/Show/@task.Id"> @task.Name</a>
                         </h3>
                         <div>Assigned to : @task.User.FirstName</div>

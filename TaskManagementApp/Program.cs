@@ -50,8 +50,8 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
 name: "taskIndex",
-pattern: "Tasks/Index/{project_id}",
-defaults: new { controller = "Tasks", action = "Index"  });
+pattern: "Tasks/Index/{project_id?}",
+defaults: new { controller = "Tasks", action = "Index" });
 
 app.MapControllerRoute(
     name: "default",
