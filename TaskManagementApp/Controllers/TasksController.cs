@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using TaskManagementApp.Data;
 using TaskManagementApp.Models;
 using Task = TaskManagementApp.Models.Task;
@@ -27,15 +28,46 @@ namespace TaskManagementApp.Controllers
             _roleManager = roleManager;
         }
 
-        
-        public IActionResult Index(int project_id)
+
+        public IActionResult Index(int? project_id)
         {
             SetAccessRights();
+            if(project_id is null)
+            {
+                SetTempDataMessage("Project not found!", "alert-danger");
+                return Redirect("/Home/Index");
+            }
+            
+            var project = db.Projects.Where(p => p.Id == project_id).FirstOrDefault();
+            ViewBag.ProjectTasks = project;
+            if (project is null)
+            {
+                SetTempDataMessage("Project not found!", "alert-danger");
+                return Redirect("/Home/Index");
+            }
 
-            ViewBag.TasksProject = GetAllTasks(project_id);
+            var organizer = GetProjectOrganizerByProjectId(project_id);
 
-            var project = db.Projects.Where(p => p.Id == project_id);
-            ViewBag.ProjectTasks = project.FirstOrDefault();
+            var team = db.Teams.Where(t=>t.ProjectId == project_id ).FirstOrDefault();
+            if (team is not null)
+            {
+                if(CheckTeamMember(_userManager.GetUserId(User), team.Id)  || ViewBag.IsAdmin ||  _userManager.GetUserId(User) != organizer.Id)
+                {
+                    //are drept
+                    ViewBag.TasksProject = GetAllTasks((int)project_id);
+
+                } else
+                {
+                    SetTempDataMessage("You don't have rights to see tasks!", "alert-danger");
+                    return Redirect("/Home/Index");
+
+                }
+
+            }
+            else
+            {
+                SetTempDataMessage("No team and no tasks were found!", "alert-danger");
+            }
 
             return View();
         }
@@ -393,7 +425,7 @@ namespace TaskManagementApp.Controllers
             return db.Users.Where(u => u.Id == project.UserId).FirstOrDefault();
         }
 
-
+        [NonAction]
         private int GetTeamIdByProjectId(int id)
         {
             var team = db.Teams.Where(team => team.ProjectId == id).FirstOrDefault();

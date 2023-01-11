@@ -107,6 +107,11 @@ a.nav-link {
     padding : 5px 2px;
 }
 
+.project {
+    background-color: #A9294F;
+    padding: 5px 2px;
+}
+
 body {
     background-color:cadetblue !important;
 }
