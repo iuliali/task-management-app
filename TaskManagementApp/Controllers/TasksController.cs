@@ -270,7 +270,7 @@ namespace TaskManagementApp.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles ="Admin,User")]
         //implement change asignee
         public IActionResult ChangeAsignee(int? id)
         {
@@ -286,7 +286,7 @@ namespace TaskManagementApp.Controllers
             ViewBag.Organizer = GetProjectOrganizerByProjectId(task.ProjectId);
 
 
-            if (!ViewBag.IsAdmin)
+            if (!ViewBag.IsAdmin && _userManager.GetUserId(User) != ViewBag.Organizer.Id)
             {
                 SetTempDataMessage("You don't have rights to change the task asignee!", "alert-danger");
                 return View("Error2");
@@ -301,12 +301,32 @@ namespace TaskManagementApp.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,User")]
         //implement change asignee
         public IActionResult ChangeAsignee([FromForm] Task? task)
         {
             SetAccessRights();
             var task_db = db.Tasks.FirstOrDefault(t => t.Id == task.Id);
+
+            if (task is null)
+            {
+                SetTempDataMessage("Task cannot be found!!", "alert-danger");
+                return View("Error2");
+            }
+
+            var project = db.Projects.FirstOrDefault(p => p.Id == task.ProjectId);
+            ViewBag.Project = project;
+            ViewBag.Organizer = GetProjectOrganizerByProjectId(task.ProjectId);
+
+            var team = db.Teams.FirstOrDefault(t => t.ProjectId == project.Id);
+            ViewBag.Members = GetAllTeammembersWithoutOrganizer(team.Id);
+
+
+            if (!ViewBag.IsAdmin && _userManager.GetUserId(User) != ViewBag.Organizer.Id)
+            {
+                SetTempDataMessage("You don't have rights to change the task asignee!", "alert-danger");
+                return View("Error2");
+            }
 
             if (ModelState.IsValid)
             {
@@ -324,16 +344,9 @@ namespace TaskManagementApp.Controllers
                 return View("Error2");
             }
 
-            if (!ViewBag.IsAdmin)
-            {
-                SetTempDataMessage("You don't have rights to change the task asignee!", "alert-danger");
-                return View("Error2");
-            }
+ 
 
-            var project = db.Projects.FirstOrDefault(p => p.Id == task.ProjectId);
-            ViewBag.Project = project;
-            var team = db.Teams.FirstOrDefault(t => t.ProjectId == project.Id);
-            ViewBag.Members = GetAllTeammembersWithoutOrganizer(team.Id);
+
 
         }
 
