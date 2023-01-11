@@ -283,7 +283,7 @@ namespace TaskManagementApp.Controllers
                 else
                 {
                     SetTempDataMessage("Task could not have been added!", "alert-danger");
-                    
+                    ViewBag.AddTaskOpen = true;
                     //return View(task);
 
                 }

@@ -86,7 +86,7 @@
                                                             <option value="@user.Id">@user.FirstName @user.LastName</option>
                                                         }
                                                     </select>
-                                    @Html.ValidationMessage("UserId", null, new { @class = "text-danger"})
+                                    @Html.ValidationMessage("ApplicationUserId", null, new { @class = "text-danger"})
 
                                                 </div>
 
@@ -126,24 +126,35 @@
                     <br />
                 </div>
                 @Html.Raw("</div>")  
-                  
-        
+
+
+          
+
 
             @if (ViewBag.CurrentUser == ViewBag.Project.UserId || ViewBag.IsAdmin)
             {
+                var expanded = false;
+                var collapsed = "collapsed";
+                var show = "";
+
+                if (ViewBag.AddTaskOpen == true)
+                {
+                    collapsed = "";
+                    expanded = true;
+                    show = "show";
+                }
+
                 <div class="accordion" id="accordionExample">
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingOne">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            <button class="accordion-button @collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="@expanded" aria-controls="collapseOne">
                                 Add a New Task for the Project
                             </button>
                         </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                        <div id="collapseOne" class="accordion-collapse collapse @show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                             <div class="accordion-body">
-                                @*                        <div class="card">
-    *@                            <form method="post" action="/Projects/AddTask/">
-
-                                    @*<div class="card-body">*@
+                                <form method="post" action="/Projects/AddTask/">
+                                    @Html.ValidationSummary()
                                     <input type="hidden" name="ProjectId" value="@ViewBag.Project.Id" />
                                     @Html.Label("Name", "Task Name")
                                     <br />
@@ -158,16 +169,17 @@
 
                                     <br />
                                     <select name="UserId" class="form-control">
-                                        <option selected hidden>Add member for task</option>
+                                        <option disabled selected hidden>Add member for task</option>
                                         @foreach (var member in ViewBag.Members)
                                         {
                                             <option value="@member.ApplicationUserId">@member.ApplicationUser.FirstName @member.ApplicationUser.LastName</option>
                                         }
                                     </select>
                                         <br />
+                                    @Html.ValidationMessage("UserId", null, new { @class = "text-danger"})
 
-    @*                                </div>
-    *@
+
+    
                                     <button class="btn btn-success " type="submit">Create task</button>
 
                                 </form>
