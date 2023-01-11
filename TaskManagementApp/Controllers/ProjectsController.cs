@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Ganss.Xss;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -294,6 +295,59 @@ namespace TaskManagementApp.Controllers
             }
             return Redirect("/Projects/Show/" + task.ProjectId);
         }
+
+        public IActionResult Edit(int id)
+        {
+            SetAccessRights();
+            Project project = db.Projects.Where(p => p.Id == id).First();
+
+            // trebuie verificate drepturi de edit
+
+            if (_userManager.GetUserId(User) == project.UserId || ViewBag.IsAdmin)
+            { //can edit the comment
+                return View(project);
+            }
+            else
+            { // another user cannot edit the project
+                SetTempDataMessage("You don't have rights to edit the project !", "alert-danger");
+                return Redirect("/Projects/Show/" + project.Id);
+
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Edit(int id, Project requestProject)
+        {
+            SetAccessRights();
+            Project project = db.Projects.Where(p => p.Id == id).First();
+
+
+            // trebuie verificate drepturi de edit
+            if (_userManager.GetUserId(User) == project.UserId || ViewBag.IsAdmin)
+            { //can edit the project
+                if (ModelState.IsValid)
+                {
+
+                    project.Name = requestProject.Name;
+                    project.Description = requestProject.Description;
+
+                    db.SaveChanges();
+
+                    return Redirect("/Projects/Show/" + project.Id);
+                }
+                else
+                {
+                    //add unsuccessfull  message
+                    return View(requestProject);
+                }
+            }
+            else
+            { // another user cannot edit the project
+                SetTempDataMessage("You don't have rights to edit the project !", "alert-danger");
+                return Redirect("/Projects/Show/" + project.Id);
+            }
+        }
+
 
         [Authorize(Roles ="Admin")]
         [HttpPost]
