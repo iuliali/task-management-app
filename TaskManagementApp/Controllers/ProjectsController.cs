@@ -136,7 +136,7 @@ namespace TaskManagementApp.Controllers
             
             var project = db.Projects.Include("Team")
               .Where(p => p.Id == id)
-              .First();
+              .FirstOrDefault();
             ViewBag.Project = project;
 
             if (project is null)
@@ -245,6 +245,9 @@ namespace TaskManagementApp.Controllers
 
             var users = db.Users.Where(u => u.Id == _userManager.GetUserId(User)).ToList();
             ViewBag.Users = users;
+            ViewBag.Project = project;
+            ViewBag.Tasks = new List<Task>();
+            ViewBag.Members = new List<TeamMember>();
 
             if (ModelState.IsValid)
             {
@@ -473,10 +476,16 @@ namespace TaskManagementApp.Controllers
 
             if (team is not null) {
                 if (ModelState.IsValid) {
-                    var organizer_tasks = db.Tasks.Where(tsk => tsk.ProjectId == project.Id).Where(tsk => tsk.UserId == organizer.Id);
+                    var organizer_tasks = db.Tasks.Include("Comments").Where(tsk => tsk.ProjectId == project.Id).Where(tsk => tsk.UserId == organizer.Id);
                     if (organizer_tasks.Any())
                     {
-                        
+                        foreach(var task in organizer_tasks)
+                        {
+                            foreach(var comm in task.Comments)
+                            {
+                                db.Comments.Remove(comm);
+                            }
+                        }
                         db.RemoveRange(organizer_tasks);
                     }
                     //creez un nou memebru -> vechiul organiztaor
@@ -558,7 +567,7 @@ namespace TaskManagementApp.Controllers
                 db.SaveChanges();
 
                 SetTempDataMessage("Project successfully added", "alert-success");
-
+                ViewBag.Project = project;
                 return RedirectToAction("Show", "Projects", new { id = project.Id });
             }
             else
