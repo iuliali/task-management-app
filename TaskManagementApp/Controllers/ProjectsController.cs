@@ -276,8 +276,12 @@ namespace TaskManagementApp.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    db.Tasks.Add(task);
-                    db.SaveChanges();
+                    var team = db.Teams.Where(t => t.ProjectId == task.ProjectId).FirstOrDefault();
+
+                        db.Tasks.Add(task);
+                        db.SaveChanges();
+      
+
 
                     SetTempDataMessage("Task has been added", "alert-success");
                 }
